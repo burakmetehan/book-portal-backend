@@ -38,13 +38,6 @@ public class User extends EntityBase {
     @JsonManagedReference
     private Set<Role> roles;
 
-    public boolean addRole(Role role) {
-        return roles.add(role);
-    }
-
-    public boolean removeRole(Role role) {
-        return roles.remove(role);
-    }
 
     public String getUsername() {
         return username;
@@ -80,6 +73,14 @@ public class User extends EntityBase {
 
     public Set<Role> getRoles() {
         return roles;
+    }
+
+    public boolean addRole(Role role) {
+        return roles.add(role);
+    }
+
+    public boolean removeRole(Role role) {
+        return roles.remove(role);
     }
 
     public void setRoles(Set<Role> roles) {

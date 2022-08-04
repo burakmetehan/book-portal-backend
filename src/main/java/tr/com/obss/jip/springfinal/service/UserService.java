@@ -1,5 +1,7 @@
 package tr.com.obss.jip.springfinal.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import tr.com.obss.jip.springfinal.entity.Book;
@@ -7,6 +9,7 @@ import tr.com.obss.jip.springfinal.entity.Role;
 import tr.com.obss.jip.springfinal.entity.User;
 import tr.com.obss.jip.springfinal.model.UserDTO;
 import tr.com.obss.jip.springfinal.model.UserResponseDTO;
+import tr.com.obss.jip.springfinal.model.UserUpdateDTO;
 import tr.com.obss.jip.springfinal.repo.BookRepository;
 import tr.com.obss.jip.springfinal.repo.RoleRepository;
 import tr.com.obss.jip.springfinal.repo.UserRepository;
@@ -20,7 +23,6 @@ import java.util.Set;
 public class UserService {
     public static final String ROLE_USER = "ROLE_USER";
 
-    private final BookRepository bookRepository;
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
 
@@ -31,7 +33,6 @@ public class UserService {
             RoleRepository roleRepository,
             UserRepository userRepository,
             PasswordEncoder encoder) {
-        this.bookRepository = bookRepository;
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
         this.encoder = encoder;
@@ -49,13 +50,17 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public UserResponseDTO findById(long id) {
+    public User findById(long id) {
         Optional<User> userOptional = userRepository.findById(id);
         if (userOptional.isPresent()) {
-            return new UserResponseDTO(userOptional.get());
+            return userOptional.get();
         } else {
             throw new IllegalArgumentException("User not found");
         }
+    }
+
+    public UserResponseDTO getById(long id) {
+        return new UserResponseDTO(findById(id));
     }
 
     public List<UserResponseDTO> getAllUsers() { // can be directly get the
@@ -67,40 +72,21 @@ public class UserService {
         return userResponseDTOList;
     }
 
-    public List<Book> getAllBooks() {
-        return bookRepository.findAll();
-    }
-
-    /*
-
-    public List<User> getUsersWithRole(List<String> roles) {
-        return userRepository.findByRoles_NameIn(roles);
-    }
-
-    public User findById(long id) {
-        Optional<User> optional = userRepository.findById(id);
-        *//*
-        if (optional.isPresent()) {
-            return optional.get();
-        } else {
-            throw new IllegalArgumentException("User not found");
-        }
-        *//*
-        return optional.orElseThrow(() -> {
-            throw new IllegalArgumentException("User not found");
-        });
-    }
-
-    public User update(long id, UserUpdateDTO userUpdateDTO) {
+    public User updateUser(long id, UserUpdateDTO userUpdateDTO) {
         User user = this.findById(id);
         user.setPassword(encoder.encode(userUpdateDTO.getPassword()));
         return userRepository.save(user);
     }
 
-    public User remove(long id) {
+    public User removeBook(long id) {
         User user = this.findById(id);
         user.setActive(!user.isActive());
         return userRepository.save(user);
+    }
+
+    public Page<User> findAllWithJpaPagination(int pageNumber, int pageSize) {
+        var paged = PageRequest.of(pageNumber, pageSize);
+        return userRepository.findAll(paged);
     }
 
     public User findByUsername(String username) {
@@ -112,32 +98,14 @@ public class UserService {
     }
 
     public List<User> findAllByUsername(String username) {
-        return userRepository.findByUsernameStartsWithAndActiveTrueOrderByCreateDate(username);
+        return userRepository.findByUsernameStartsWithAndActiveTrueOrderByUsername(username);
     }
 
-    public User findByIdHql(long id) {
-        Optional<User> optional = userRepository.getById(id);
 
-        return optional.orElseThrow(() -> {
-            throw new IllegalArgumentException("User not found");
-        });
-    }
+    /*
 
-    public User findByIdNative(long id) {
-        Optional<User> optional = userRepository.getByIdNative(id);
-
-        return optional.orElseThrow(() -> {
-            throw new IllegalArgumentException("User not found");
-        });
-    }
-
-    public Page<User> findAllWithJpaPagination(int pageNumber, int pageSize) {
-        var paged = PageRequest.of(pageNumber, pageSize);
-        return userRepository.findAll(paged);
-    }
-
-    public List<User> findAllWithDaoPagination(int pageNumber, int pageSize) {
-        return userDAO.get(pageNumber, pageSize);
+    public List<User> getUsersWithRole(List<String> roles) {
+        return userRepository.findByRoles_NameIn(roles);
     }
 
     @Override
