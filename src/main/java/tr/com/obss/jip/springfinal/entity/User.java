@@ -37,4 +37,52 @@ public class User extends EntityBase {
             inverseJoinColumns = @JoinColumn(name = "ROLE_ID", referencedColumnName = "ID"))
     @JsonManagedReference
     private Set<Role> roles;
+
+    public boolean addRole(Role role) {
+        return roles.add(role);
+    }
+
+    public boolean removeRole(Role role) {
+        return roles.remove(role);
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Set<Book> getReadList() {
+        return readList;
+    }
+
+    public void setReadList(Set<Book> readList) {
+        this.readList = readList;
+    }
+
+    public Set<Book> getFavoriteList() {
+        return favoriteList;
+    }
+
+    public void setFavoriteList(Set<Book> favoriteList) {
+        this.favoriteList = favoriteList;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
 }
