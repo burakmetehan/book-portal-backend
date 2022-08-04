@@ -43,6 +43,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .loginProcessingUrl("/login")
             .successHandler((req, resp, auth) -> resp.setStatus(SC_OK)) // success authentication
             .failureHandler((req, resp, ex) -> resp.setStatus(SC_FORBIDDEN))
+            .and() // bad credentials
+            .sessionManagement()
+            .invalidSessionStrategy((req, resp) -> resp.setStatus(SC_UNAUTHORIZED))
             .and()
             .logout()
             .logoutUrl("/logout")

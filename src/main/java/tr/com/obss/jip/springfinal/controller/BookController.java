@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tr.com.obss.jip.springfinal.entity.Book;
+import tr.com.obss.jip.springfinal.exception.BookNotFoundException;
 import tr.com.obss.jip.springfinal.model.BookDTO;
 import tr.com.obss.jip.springfinal.model.BookUpdateDTO;
 import tr.com.obss.jip.springfinal.service.BookService;
@@ -20,36 +21,44 @@ public class BookController {
         this.bookService = bookService;
     }
 
+    /* ##### GET Mappings ##### */
+    @GetMapping("")
+    public ResponseEntity<Page<Book>> searchAllBooksWithPagination(
+            @RequestParam(name = "pageNumber", defaultValue = "0") int pageNumber,
+            @RequestParam(name = "pageSize", defaultValue = "10") int pageSize) {
+        return ResponseEntity.ok(bookService.getAllBooksWithPagination(pageNumber, pageSize));
+    }
+
+    /**
+     * @param id Take an id from request parameters, namely id.
+     * @return The book with id. If it is not found, Error 500 is thrown
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<Book> searchBookById(@PathVariable(name = "id") long id) {
+        return ResponseEntity.ok(bookService.getBookById(id));
+    }
+
+    @GetMapping("/name/{book_name}")
+    public ResponseEntity<Page<Book>> searchBooksByName(
+            @PathVariable(name = "book_name") String name,
+            @RequestParam(name = "pageNumber", defaultValue = "0") int pageNumber,
+            @RequestParam(name = "pageSize", defaultValue = "10") int pageSize) {
+        return ResponseEntity.ok(bookService.getAllBooksByNameWithPagination(name, pageNumber, pageSize));
+    }
 
     /**
      * @return List of all the books
      */
-    @GetMapping("")
-    public ResponseEntity<List<Book>> getAllBooks() {
+    @GetMapping("/no-pagination")
+    public ResponseEntity<List<Book>> searchAllBooksWithoutPagination() {
         return ResponseEntity.ok(bookService.getAllBooks());
     }
 
-    @GetMapping("/{bookId}")
-    public ResponseEntity<Book> getUser(@PathVariable(name = "bookId") long id) {
-        return ResponseEntity.ok(bookService.getById(id));
+    @GetMapping("/no-pagination/name/{book_name}")
+    public ResponseEntity<List<Book>> searchBooksByNameWithoutPagination(@PathVariable(name = "book_name") String name) {
+        return ResponseEntity.ok(bookService.getAllBooksByName(name));
     }
 
-    @GetMapping("/with-jpa-pagination")
-    public ResponseEntity<Page<Book>> getUsersWithJpaPagination(
-            @RequestParam(name = "pageSize", defaultValue = "5") int pageSize,
-            @RequestParam(name = "pageNumber", defaultValue = "0") int pageNumber) {
-        return ResponseEntity.ok(bookService.findAllWithJpaPagination(pageNumber, pageSize));
-    }
-
-    @GetMapping("/by-name")
-    public ResponseEntity<Book> searchUser(@RequestParam(name = "name", defaultValue = "") String name) {
-        return ResponseEntity.ok(bookService.findByBookName(name));
-    }
-
-    @GetMapping("/all-by-name")
-    public ResponseEntity<List<Book>> searchAllUser(@RequestParam(name = "name", defaultValue = "") String name) {
-        return ResponseEntity.ok(bookService.findAllByBookName(name));
-    }
 
     /* ##### POST Mappings ##### */
     @PostMapping("")
@@ -59,8 +68,8 @@ public class BookController {
 
     /* ##### PUT Mappings ##### */
     @PutMapping("/{bookId}")
-    public ResponseEntity<Book> updateUser(@PathVariable(name = "bookId") long id, @Valid @RequestBody
-    BookUpdateDTO bookUpdateDTO) {
+    public ResponseEntity<Book> updateUser(
+            @PathVariable(name = "bookId") long id, @Valid @RequestBody BookUpdateDTO bookUpdateDTO) {
         return ResponseEntity.ok(bookService.updateBook(id, bookUpdateDTO));
     }
 

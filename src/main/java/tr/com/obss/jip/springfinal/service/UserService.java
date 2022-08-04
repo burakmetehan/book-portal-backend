@@ -7,7 +7,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import tr.com.obss.jip.springfinal.entity.Book;
 import tr.com.obss.jip.springfinal.entity.Role;
 import tr.com.obss.jip.springfinal.entity.User;
 import tr.com.obss.jip.springfinal.model.MyUserDetails;
@@ -110,12 +109,4 @@ public class UserService implements UserDetailsService {
         User user = this.findByUsername(username);
         return new MyUserDetails(user);
     }
-
-
-    /*
-
-    public List<User> getUsersWithRole(List<String> roles) {
-        return userRepository.findByRoles_NameIn(roles);
-    }*/
-
 }
