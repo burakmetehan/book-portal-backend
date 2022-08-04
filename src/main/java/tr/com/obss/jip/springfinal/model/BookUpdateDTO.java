@@ -6,14 +6,25 @@ import javax.validation.constraints.*;
 import java.util.Date;
 
 public class BookUpdateDTO {
+    private String name;
+
     private String author;
 
     @Min(value=0)
-    @Max(value=1000)
+    @Max(value=Integer.MAX_VALUE)
     private int pageCount;
 
-    @NotBlank
     private String publisher;
+
+    private Date publicationDate;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public String getAuthor() {
         return author;
@@ -37,5 +48,13 @@ public class BookUpdateDTO {
 
     public void setPublisher(String publisher) {
         this.publisher = publisher;
+    }
+
+    public Date getPublicationDate() {
+        return publicationDate;
+    }
+
+    public void setPublicationDate(Date publicationDate) {
+        this.publicationDate = publicationDate;
     }
 }

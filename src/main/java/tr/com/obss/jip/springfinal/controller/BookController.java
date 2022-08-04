@@ -55,7 +55,7 @@ public class BookController {
         return ResponseEntity.ok(bookService.getAllBooks());
     }
 
-    @GetMapping("/no-pagination/name/{book_name}")
+    @GetMapping("/no-pagination/{book_name}")
     public ResponseEntity<List<Book>> searchBooksByNameWithoutPagination(@PathVariable(name = "book_name") String name) {
         return ResponseEntity.ok(bookService.getAllBooksByName(name));
     }
@@ -69,13 +69,14 @@ public class BookController {
 
     /* ##### PUT Mappings ##### */
     @PutMapping("/{bookId}")
-    public ResponseEntity<Book> updateUser(
-            @PathVariable(name = "bookId") long id, @Valid @RequestBody BookUpdateDTO bookUpdateDTO) {
+    public ResponseEntity<Book> updateBook(
+            @PathVariable(name = "bookId") long id, @Valid @RequestBody @DateTimeFormat BookUpdateDTO bookUpdateDTO) {
         return ResponseEntity.ok(bookService.updateBook(id, bookUpdateDTO));
     }
 
+    /* ##### DELETE Mappings ##### */
     @DeleteMapping("/{bookId}")
-    public ResponseEntity<Book> deleteUser(@PathVariable(name = "bookId") long id) {
+    public ResponseEntity<Book> removeBook(@PathVariable(name = "bookId") long id) {
         return ResponseEntity.ok(bookService.removeBook(id));
     }
 }

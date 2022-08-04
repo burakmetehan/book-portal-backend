@@ -9,6 +9,7 @@ import tr.com.obss.jip.springfinal.model.BookDTO;
 import tr.com.obss.jip.springfinal.model.BookUpdateDTO;
 import tr.com.obss.jip.springfinal.repo.BookRepository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -91,15 +92,31 @@ public class BookService {
     public Book updateBook(long id, BookUpdateDTO bookDTO) {
         Book book = this.findById(id);
 
-        String author = bookDTO.getAuthor();
-        int pageCount = book.getPageCount();
+        String newName = bookDTO.getName();
+        String newAuthor = bookDTO.getAuthor();
+        int newPageCount = bookDTO.getPageCount();
+        String newPublisher = bookDTO.getPublisher();
+        Date newPublicationDate = bookDTO.getPublicationDate();
 
-        if (author != null && !author.isEmpty()) {
-            book.setAuthor(author);
+        if (newName != null && !newName.isEmpty()) {
+            book.setName(newName);
         }
 
-        book.setPageCount(pageCount);
-        book.setPublisher(bookDTO.getPublisher());
+        if (newAuthor != null && !newAuthor.isEmpty()) {
+            book.setAuthor(newAuthor);
+        }
+
+        if (newPageCount > 0 && newPageCount < Integer.MAX_VALUE) {
+            book.setPageCount(newPageCount);
+        }
+
+        if (newPublisher != null && !newPublisher.isEmpty()) {
+            book.setPublisher(newPublisher);
+        }
+
+        if (newPublicationDate != null) {
+            book.setPublicationDate(newPublicationDate);
+        }
 
         return bookRepository.save(book);
     }

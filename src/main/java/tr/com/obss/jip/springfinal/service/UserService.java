@@ -9,15 +9,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import tr.com.obss.jip.springfinal.entity.Role;
 import tr.com.obss.jip.springfinal.entity.User;
+import tr.com.obss.jip.springfinal.exception.RoleNotFoundException;
+import tr.com.obss.jip.springfinal.exception.UserNotFoundException;
 import tr.com.obss.jip.springfinal.model.MyUserDetails;
 import tr.com.obss.jip.springfinal.model.UserDTO;
-import tr.com.obss.jip.springfinal.model.UserResponseDTO;
 import tr.com.obss.jip.springfinal.model.UserUpdateDTO;
-import tr.com.obss.jip.springfinal.repo.BookRepository;
 import tr.com.obss.jip.springfinal.repo.RoleRepository;
 import tr.com.obss.jip.springfinal.repo.UserRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -32,47 +31,67 @@ public class UserService implements UserDetailsService {
     private final PasswordEncoder encoder;
 
     public UserService(
-            BookRepository bookRepository,
-            RoleRepository roleRepository,
-            UserRepository userRepository,
-            PasswordEncoder encoder) {
+            RoleRepository roleRepository, UserRepository userRepository, PasswordEncoder encoder) {
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
         this.encoder = encoder;
     }
 
-    public User save(UserDTO userDTO) {
+    private User findById(long id) {
+        Optional<User> userOptional = userRepository.findById(id);
+        if (userOptional.isPresent()) {
+            return userOptional.get();
+        } else {
+            throw new UserNotFoundException("User is not found!");
+        }
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    public Page<User> getAllUsersWithPagination(int pageNumber, int pageSize) {
+        var paged = PageRequest.of(pageNumber, pageSize);
+        return userRepository.findAll(paged);
+    }
+
+    public User getUserById(long id) {
+        return findById(id);
+    }
+
+    public User getUserByUsername(String username) {
+        Optional<User> optionalUser = userRepository.findByUsername(username);
+        if (optionalUser.isPresent()) {
+            return optionalUser.get();
+        } else {
+            throw new UserNotFoundException("User is not found!");
+        }
+    }
+
+    public List<User> getUsersByUsernameStartsWith(String username) {
+        return userRepository.findByUsernameStartsWithAndActiveTrueOrderByUsername(username);
+    }
+
+    public Page<User> getUsersByUsernameWithPagination(String name, int pageNumber, int pageSize) {
+        var paged = PageRequest.of(pageNumber, pageSize);
+        return userRepository.findByUsernameStartsWithAndActiveTrueOrderByUsername(name, paged);
+    }
+
+    public User saveUser(UserDTO userDTO) {
         User user = new User();
 
         user.setUsername(userDTO.getUsername());
         user.setPassword(encoder.encode(userDTO.getPassword()));
 
-        Optional<Role> userOptional = roleRepository.findByName(ROLE_USER);
-        userOptional.ifPresent(role -> user.setRoles(Set.of(role)));
+        // Every user has ROLE_USER by default
+        Optional<Role> roleOptional = roleRepository.findByName(ROLE_USER);
+        if (roleOptional.isPresent()) {
+            user.setRoles(Set.of(roleOptional.get()));
+        } else {
+            throw new RoleNotFoundException("Role is not found!");
+        }
 
         return userRepository.save(user);
-    }
-
-    public User findById(long id) {
-        Optional<User> userOptional = userRepository.findById(id);
-        if (userOptional.isPresent()) {
-            return userOptional.get();
-        } else {
-            throw new IllegalArgumentException("User not found");
-        }
-    }
-
-    public UserResponseDTO getById(long id) {
-        return new UserResponseDTO(findById(id));
-    }
-
-    public List<UserResponseDTO> getAllUsers() { // can be directly get the
-        List<UserResponseDTO> userResponseDTOList = new ArrayList<>();
-        for ( User user : userRepository.findAll() ) {
-            userResponseDTOList.add(new UserResponseDTO(user));
-        }
-
-        return userResponseDTOList;
     }
 
     public User updateUser(long id, UserUpdateDTO userUpdateDTO) {
@@ -81,32 +100,24 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
-    public User removeBook(long id) {
+    public User removeUser(long id) {
         User user = this.findById(id);
         user.setActive(!user.isActive());
         return userRepository.save(user);
     }
 
-    public Page<User> findAllWithJpaPagination(int pageNumber, int pageSize) {
-        var paged = PageRequest.of(pageNumber, pageSize);
-        return userRepository.findAll(paged);
-    }
-
-    public User findByUsername(String username) {
-        Optional<User> optional = userRepository.findByUsername(username);
-
-        return optional.orElseThrow(() -> {
-            throw new IllegalArgumentException("User not found");
-        });
-    }
-
-    public List<User> findAllByUsername(String username) {
-        return userRepository.findByUsernameStartsWithAndActiveTrueOrderByUsername(username);
-    }
-
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = this.findByUsername(username);
+        User user = this.getUserByUsername(username);
         return new MyUserDetails(user);
     }
+
+    /*public List<UserResponseDTO> getAllUsers() { // can be directly get the
+        List<UserResponseDTO> userResponseDTOList = new ArrayList<>();
+        for (User user : userRepository.findAll()) {
+            userResponseDTOList.add(new UserResponseDTO(user));
+        }
+
+        return userResponseDTOList;
+    }*/
 }

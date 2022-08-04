@@ -16,6 +16,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByUsername(String username);
 
-    // findByUsernameStartsWithAndActiveTrueOrderByCreateDate
     List<User> findByUsernameStartsWithAndActiveTrueOrderByUsername(String username);
+
+    Page<User> findByUsernameStartsWithAndActiveTrueOrderByUsername(String username, Pageable pageable);
 }

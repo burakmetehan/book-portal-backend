@@ -1,6 +1,7 @@
 package tr.com.obss.jip.springfinal.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import tr.com.obss.jip.springfinal.model.UserDTO;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -37,7 +38,6 @@ public class User extends EntityBase {
             inverseJoinColumns = @JoinColumn(name = "ROLE_ID", referencedColumnName = "ID"))
     @JsonManagedReference
     private Set<Role> roles;
-
 
     public String getUsername() {
         return username;
