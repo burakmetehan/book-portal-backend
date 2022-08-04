@@ -85,7 +85,6 @@ public class BookService {
 
     public Book saveBook(BookDTO bookDTO) {
         Book book = new Book(bookDTO);
-
         return bookRepository.save(book);
     }
 

@@ -1,6 +1,7 @@
 package tr.com.obss.jip.springfinal.controller;
 
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tr.com.obss.jip.springfinal.entity.Book;
@@ -62,7 +63,7 @@ public class BookController {
 
     /* ##### POST Mappings ##### */
     @PostMapping("")
-    public ResponseEntity<Book> createBook(@Valid @RequestBody BookDTO bookDTO) {
+    public ResponseEntity<Book> createBook(@Valid @RequestBody @DateTimeFormat BookDTO bookDTO) {
         return ResponseEntity.ok(bookService.saveBook(bookDTO));
     }
 

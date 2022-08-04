@@ -27,6 +27,9 @@ public class Book extends EntityBase {
     @Column(name = "PUBLISHER")
     private String publisher;
 
+    @Column(name = "PUBLICATION_DATE")
+    private Date publicationDate;
+
     @ManyToMany(mappedBy = "readList")
     private Set<User> readListUsers;
 
@@ -41,6 +44,7 @@ public class Book extends EntityBase {
         this.setPageCount(bookDTO.getPageCount());
         this.setType(bookDTO.getType());
         this.setPublisher(bookDTO.getPublisher());
+        this.setPublicationDate(bookDTO.getPublicationDate());
         this.readListUsers = null;
         this.favoriteListUsers = null;
     }
@@ -83,6 +87,14 @@ public class Book extends EntityBase {
 
     public void setPublisher(String publisher) {
         this.publisher = publisher;
+    }
+
+    public Date getPublicationDate() {
+        return publicationDate;
+    }
+
+    public void setPublicationDate(Date publicationDate) {
+        this.publicationDate = publicationDate;
     }
 
     public Set<User> getReadListUsers() {

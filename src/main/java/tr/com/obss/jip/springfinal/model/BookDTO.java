@@ -3,7 +3,7 @@ package tr.com.obss.jip.springfinal.model;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 public class BookDTO {
@@ -14,7 +14,7 @@ public class BookDTO {
     private String author;
 
     @Min(value=0)
-    @Max(value=1000)
+    @Max(value=Integer.MAX_VALUE)
     private int pageCount;
 
     @NotBlank
@@ -22,6 +22,9 @@ public class BookDTO {
 
     @NotBlank
     private String publisher;
+
+    @NotNull
+    private Date publicationDate;
 
     public String getName() {
         return name;
@@ -61,5 +64,13 @@ public class BookDTO {
 
     public void setPublisher(String publisher) {
         this.publisher = publisher;
+    }
+
+    public Date getPublicationDate() {
+        return publicationDate;
+    }
+
+    public void setPublicationDate(Date publicationDate) {
+        this.publicationDate = publicationDate;
     }
 }

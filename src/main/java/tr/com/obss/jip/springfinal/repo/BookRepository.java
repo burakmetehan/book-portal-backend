@@ -11,9 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface BookRepository extends JpaRepository<Book, Long> {
-    Optional<Book> findByName(String name);
-
     List<Book> findAllByNameAndActiveTrueOrderByName(String name);
 
-    Page<Book> findAllByNameAndActiveTrueOrderByName(String name, Pageable pageable) ;
+    Page<Book> findAllByNameAndActiveTrueOrderByName(String name, Pageable pageable);
 }
