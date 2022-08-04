@@ -2,6 +2,8 @@ package tr.com.obss.jip.springfinal.controller;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import tr.com.obss.jip.springfinal.entity.Book;
 import tr.com.obss.jip.springfinal.entity.User;
@@ -31,6 +33,8 @@ public class UserController {
      * @return List of all the users
      */
     @GetMapping("/all-users")
+//    @PreAuthorize("hasRole('ADMIN')")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }

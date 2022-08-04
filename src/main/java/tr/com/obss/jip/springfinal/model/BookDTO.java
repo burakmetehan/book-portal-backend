@@ -1,6 +1,9 @@
 package tr.com.obss.jip.springfinal.model;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import java.util.Date;
 
 public class BookDTO {
@@ -10,8 +13,9 @@ public class BookDTO {
     @NotBlank
     private String author;
 
-    @NotBlank
-    private Integer pageCount;
+    @Min(value=0)
+    @Max(value=1000)
+    private int pageCount;
 
     @NotBlank
     private String type;
@@ -35,11 +39,11 @@ public class BookDTO {
         this.author = author;
     }
 
-    public Integer getPageCount() {
+    public int getPageCount() {
         return pageCount;
     }
 
-    public void setPageCount(Integer pageCount) {
+    public void setPageCount(int pageCount) {
         this.pageCount = pageCount;
     }
 

@@ -22,7 +22,7 @@ public class BookService {
     public Book saveBook(BookDTO bookDTO) {
         Book book = new Book(bookDTO);
 
-        return book;
+        return bookRepository.save(book);
     }
 
     public Book findById(long id) {
@@ -50,16 +50,13 @@ public class BookService {
         Book book = this.findById(id);
 
         String author = bookDTO.getAuthor();
-        Integer pageCount = book.getPageCount();
+        int pageCount = book.getPageCount();
 
         if (author != null && !author.isEmpty()) {
             book.setAuthor(author);
         }
 
-        if (pageCount != null) {
-            book.setPageCount(pageCount);
-        }
-
+        book.setPageCount(pageCount);
         book.setPublisher(bookDTO.getPublisher());
 
         return bookRepository.save(book);

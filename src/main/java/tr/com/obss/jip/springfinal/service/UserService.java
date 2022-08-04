@@ -2,11 +2,15 @@ package tr.com.obss.jip.springfinal.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import tr.com.obss.jip.springfinal.entity.Book;
 import tr.com.obss.jip.springfinal.entity.Role;
 import tr.com.obss.jip.springfinal.entity.User;
+import tr.com.obss.jip.springfinal.model.MyUserDetails;
 import tr.com.obss.jip.springfinal.model.UserDTO;
 import tr.com.obss.jip.springfinal.model.UserResponseDTO;
 import tr.com.obss.jip.springfinal.model.UserUpdateDTO;
@@ -20,7 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
     public static final String ROLE_USER = "ROLE_USER";
 
     private final RoleRepository roleRepository;
@@ -101,17 +105,17 @@ public class UserService {
         return userRepository.findByUsernameStartsWithAndActiveTrueOrderByUsername(username);
     }
 
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = this.findByUsername(username);
+        return new MyUserDetails(user);
+    }
+
 
     /*
 
     public List<User> getUsersWithRole(List<String> roles) {
         return userRepository.findByRoles_NameIn(roles);
-    }
-
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = this.findByUsername(username);
-        return new MyUserDetails(user);
     }*/
 
 }

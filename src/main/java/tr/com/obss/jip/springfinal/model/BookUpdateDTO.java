@@ -2,13 +2,15 @@ package tr.com.obss.jip.springfinal.model;
 
 import javax.persistence.Column;
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.util.Date;
 
 public class BookUpdateDTO {
     private String author;
-    private Integer pageCount;
+
+    @Min(value=0)
+    @Max(value=1000)
+    private int pageCount;
 
     @NotBlank
     private String publisher;
@@ -21,11 +23,11 @@ public class BookUpdateDTO {
         this.author = author;
     }
 
-    public Integer getPageCount() {
+    public int getPageCount() {
         return pageCount;
     }
 
-    public void setPageCount(Integer pageCount) {
+    public void setPageCount(int pageCount) {
         this.pageCount = pageCount;
     }
 

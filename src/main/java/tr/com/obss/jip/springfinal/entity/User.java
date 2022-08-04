@@ -30,7 +30,7 @@ public class User extends EntityBase {
     @JsonManagedReference
     private Set<Book> favoriteList;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "USERS_ROLES",
             joinColumns = @JoinColumn(name = "USER_ID", referencedColumnName = "ID"),

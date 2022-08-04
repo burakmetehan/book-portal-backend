@@ -19,7 +19,7 @@ public class Book extends EntityBase {
     private String author;
 
     @Column(name = "PAGE_COUNT")
-    private Integer pageCount;
+    private int pageCount;
 
     @Column(name = "TYPE")
     private String type;
@@ -61,11 +61,11 @@ public class Book extends EntityBase {
         this.author = author;
     }
 
-    public Integer getPageCount() {
+    public int getPageCount() {
         return pageCount;
     }
 
-    public void setPageCount(Integer pageCount) {
+    public void setPageCount(int pageCount) {
         this.pageCount = pageCount;
     }
 
