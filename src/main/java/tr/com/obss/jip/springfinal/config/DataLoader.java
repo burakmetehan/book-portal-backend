@@ -2,6 +2,7 @@ package tr.com.obss.jip.springfinal.config;
 
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import tr.com.obss.jip.springfinal.entity.Role;
 import tr.com.obss.jip.springfinal.entity.User;
@@ -23,9 +24,12 @@ public class DataLoader implements ApplicationRunner {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
 
-    public DataLoader(RoleRepository roleRepository, UserRepository userRepository) {
+    private final PasswordEncoder encoder;
+
+    public DataLoader(RoleRepository roleRepository, UserRepository userRepository, PasswordEncoder encoder) {
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
+        this.encoder = encoder;
     }
 
     @Override
@@ -49,7 +53,7 @@ public class DataLoader implements ApplicationRunner {
         if (!isAdminUserExists) {
             User adminUser = new User();
             adminUser.setUsername(DEFAULT_ADMIN_USERNAME);
-            adminUser.setPassword(DEFAULT_ADMIN_PASSWORD);
+            adminUser.setPassword(encoder.encode(DEFAULT_ADMIN_PASSWORD));
 
             Optional<Role> adminRole = roleRepository.findByName(ROLE_ADMIN);
             Optional<Role> userRole = roleRepository.findByName(ROLE_USER);
