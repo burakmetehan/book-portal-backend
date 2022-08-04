@@ -4,10 +4,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
-import tr.com.obss.jip.springfinal.entity.Book;
 import tr.com.obss.jip.springfinal.entity.User;
 import tr.com.obss.jip.springfinal.model.UserDTO;
-import tr.com.obss.jip.springfinal.model.UserResponseDTO;
 import tr.com.obss.jip.springfinal.model.UserUpdateDTO;
 import tr.com.obss.jip.springfinal.service.UserService;
 
@@ -33,11 +31,13 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<User> getUser(@PathVariable(name = "id") long id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @GetMapping("/name/{username}")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<User> searchUserByUsername(
             @PathVariable(name = "username") String username,
             @RequestParam(name = "pageNumber", defaultValue = "0") int pageNumber,
@@ -46,6 +46,7 @@ public class UserController {
     }
 
     @GetMapping("/name/sw-{username}")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<Page<User>> searchUsersByUsernameWithPagination(
             @PathVariable(name = "username") String username,
             @RequestParam(name = "pageNumber", defaultValue = "0") int pageNumber,
@@ -60,18 +61,21 @@ public class UserController {
     }
 
     @GetMapping("/no-pagination/sw-{username}")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<List<User>> searchUserByUsernameStartsWith(@PathVariable(name = "username") String name) {
         return ResponseEntity.ok(userService.getUsersByUsernameStartsWith(name));
     }
 
     /* ##### POST Mappings ##### */
     @PostMapping("")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<User> createUser(@Valid @RequestBody UserDTO userDTO) {
         return ResponseEntity.ok(userService.saveUser(userDTO));
     }
 
     /* ##### PUT Mappings ##### */
     @PutMapping("/{id}")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<User> updateUser(
             @PathVariable(name = "id") long id,
             @Valid @RequestBody UserUpdateDTO userUpdateDTO) {
@@ -80,6 +84,7 @@ public class UserController {
 
     /* ##### DELETE Mappings ##### */
     @DeleteMapping("/{id}")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<User> removeUser(@PathVariable(name = "id") long id) {
         return ResponseEntity.ok(userService.removeUser(id));
     }

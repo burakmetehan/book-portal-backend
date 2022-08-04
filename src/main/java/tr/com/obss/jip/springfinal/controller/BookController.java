@@ -3,9 +3,9 @@ package tr.com.obss.jip.springfinal.controller;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import tr.com.obss.jip.springfinal.entity.Book;
-import tr.com.obss.jip.springfinal.exception.BookNotFoundException;
 import tr.com.obss.jip.springfinal.model.BookDTO;
 import tr.com.obss.jip.springfinal.model.BookUpdateDTO;
 import tr.com.obss.jip.springfinal.service.BookService;
@@ -63,12 +63,14 @@ public class BookController {
 
     /* ##### POST Mappings ##### */
     @PostMapping("")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<Book> createBook(@Valid @RequestBody @DateTimeFormat BookDTO bookDTO) {
         return ResponseEntity.ok(bookService.saveBook(bookDTO));
     }
 
     /* ##### PUT Mappings ##### */
     @PutMapping("/{bookId}")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<Book> updateBook(
             @PathVariable(name = "bookId") long id, @Valid @RequestBody @DateTimeFormat BookUpdateDTO bookUpdateDTO) {
         return ResponseEntity.ok(bookService.updateBook(id, bookUpdateDTO));
@@ -76,6 +78,7 @@ public class BookController {
 
     /* ##### DELETE Mappings ##### */
     @DeleteMapping("/{bookId}")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<Book> removeBook(@PathVariable(name = "bookId") long id) {
         return ResponseEntity.ok(bookService.removeBook(id));
     }
