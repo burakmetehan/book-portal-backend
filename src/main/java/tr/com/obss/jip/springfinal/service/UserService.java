@@ -19,10 +19,9 @@ import tr.com.obss.jip.springfinal.repo.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
-public class UserService implements UserDetailsService {
+public class UserService {
     public static final String ROLE_USER = "ROLE_USER";
 
     private final RoleRepository roleRepository;
@@ -86,7 +85,7 @@ public class UserService implements UserDetailsService {
         // Every user has ROLE_USER by default
         Optional<Role> roleOptional = roleRepository.findByName(ROLE_USER);
         if (roleOptional.isPresent()) {
-            user.setRoles(Set.of(roleOptional.get()));
+            user.addRole(roleOptional.get());
         } else {
             throw new RoleNotFoundException("Role is not found!");
         }
@@ -104,12 +103,6 @@ public class UserService implements UserDetailsService {
         User user = this.findById(id);
         user.setActive(!user.isActive());
         return userRepository.save(user);
-    }
-
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = this.getUserByUsername(username);
-        return new MyUserDetails(user);
     }
 
     /*public List<UserResponseDTO> getAllUsers() { // can be directly get the

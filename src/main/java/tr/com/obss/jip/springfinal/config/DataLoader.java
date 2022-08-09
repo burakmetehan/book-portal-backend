@@ -33,7 +33,7 @@ public class DataLoader implements ApplicationRunner {
     }
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
+    public void run(ApplicationArguments args) {
         boolean isUserRoleExists = roleRepository.existsByName(ROLE_USER);
         boolean isAdminRoleExists = roleRepository.existsByName(ROLE_ADMIN);
         boolean isAdminUserExists = userRepository.existsByUsername(DEFAULT_ADMIN_USERNAME);

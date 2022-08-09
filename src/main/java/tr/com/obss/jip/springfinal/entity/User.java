@@ -1,7 +1,6 @@
 package tr.com.obss.jip.springfinal.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import tr.com.obss.jip.springfinal.model.UserDTO;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -15,7 +14,7 @@ public class User extends EntityBase {
     @Column(name = "PASSWORD", length = 255)
     private String password;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     @JoinTable(
             name = "READ_LIST",
             joinColumns = @JoinColumn(name = "USER_ID", referencedColumnName = "ID"),
@@ -23,7 +22,7 @@ public class User extends EntityBase {
     @JsonManagedReference
     private Set<Book> readList;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     @JoinTable(
             name = "FAVORITE_LIST",
             joinColumns = @JoinColumn(name = "USER_ID", referencedColumnName = "ID"),
@@ -31,7 +30,7 @@ public class User extends EntityBase {
     @JsonManagedReference
     private Set<Book> favoriteList;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     @JoinTable(
             name = "USERS_ROLES",
             joinColumns = @JoinColumn(name = "USER_ID", referencedColumnName = "ID"),
@@ -75,15 +74,34 @@ public class User extends EntityBase {
         return roles;
     }
 
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
+    // add/remove for readList
+    public boolean addBookToReadList(Book book) {
+        return this.readList.add(book);
+    }
+
+    public boolean removeBookFromReadList(Book book) {
+        return this.readList.remove(book);
+    }
+
+    // add/remove for favoriteList
+    public boolean addBookToFavoriteList(Book book) {
+        return this.favoriteList.add(book);
+    }
+
+    public boolean removeBookFromFavoriteList(Book book) {
+        return this.favoriteList.remove(book);
+    }
+
+    // add/remove for roles
     public boolean addRole(Role role) {
-        return roles.add(role);
+        return this.roles.add(role);
     }
 
     public boolean removeRole(Role role) {
-        return roles.remove(role);
-    }
-
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
+        return this.roles.remove(role);
     }
 }

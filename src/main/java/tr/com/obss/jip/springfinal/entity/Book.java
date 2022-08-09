@@ -1,11 +1,9 @@
 package tr.com.obss.jip.springfinal.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import tr.com.obss.jip.springfinal.model.BookDTO;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Date;
 import java.util.Set;
 
@@ -31,9 +29,11 @@ public class Book extends EntityBase {
     private Date publicationDate;
 
     @ManyToMany(mappedBy = "readList")
+    @JsonBackReference
     private Set<User> readListUsers;
 
     @ManyToMany(mappedBy = "favoriteList")
+    @JsonBackReference
     private Set<User> favoriteListUsers;
 
     public Book() {}

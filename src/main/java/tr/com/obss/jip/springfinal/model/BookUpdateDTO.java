@@ -1,8 +1,7 @@
 package tr.com.obss.jip.springfinal.model;
 
-import javax.persistence.Column;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.Date;
 
 public class BookUpdateDTO {
