@@ -2,16 +2,12 @@ package tr.com.obss.jip.springfinal.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import tr.com.obss.jip.springfinal.entity.Role;
 import tr.com.obss.jip.springfinal.entity.User;
 import tr.com.obss.jip.springfinal.exception.RoleNotFoundException;
 import tr.com.obss.jip.springfinal.exception.UserNotFoundException;
-import tr.com.obss.jip.springfinal.model.MyUserDetails;
 import tr.com.obss.jip.springfinal.model.UserDTO;
 import tr.com.obss.jip.springfinal.model.UserUpdateDTO;
 import tr.com.obss.jip.springfinal.repo.RoleRepository;

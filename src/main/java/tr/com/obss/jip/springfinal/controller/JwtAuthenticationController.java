@@ -1,19 +1,15 @@
 package tr.com.obss.jip.springfinal.controller;
 
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import tr.com.obss.jip.springfinal.config.JwtTokenUtil;
 import tr.com.obss.jip.springfinal.model.JwtRequest;
 import tr.com.obss.jip.springfinal.model.JwtResponse;
 import tr.com.obss.jip.springfinal.service.JwtUserDetailsService;
-
-import java.util.Date;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/authenticate")
@@ -40,7 +36,6 @@ public class JwtAuthenticationController {
         authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
-
         final String token = jwtTokenUtil.generateToken(userDetails);
 
         // HttpHeaders responseHeaders = new HttpHeaders();
@@ -50,7 +45,11 @@ public class JwtAuthenticationController {
         // return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         // return ResponseEntity.ok().header("Authorization", token).body(new JwtResponse(token));
         // return ResponseEntity.ok().headers(responseHeaders).body(new JwtResponse(token));
-        return ResponseEntity.ok(new JwtResponse(token));
+        //return ResponseEntity.ok(new JwtResponse(token));
+        return ResponseEntity.ok().body(new JwtResponse(
+                token,
+                authenticationRequest.getUsername(),
+                userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))));
     }
 
     private void authenticate(String username, String password) {

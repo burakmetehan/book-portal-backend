@@ -1,6 +1,7 @@
 package tr.com.obss.jip.springfinal.controller;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -44,8 +45,8 @@ public class BookController {
      * @return The book with id. If it is not found, Error 500 is thrown
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Book> searchBookById(@PathVariable(name = "id") long id) {
-        return ResponseEntity.ok(bookService.getBookById(id));
+    public ResponseEntity<Page<Book>> searchBookById(@PathVariable(name = "id") long id) {
+        return ResponseEntity.ok(bookService.getBookById(id, PageRequest.of(0, 1))); // Only one user. Page is needed for frontend
     }
 
     /**

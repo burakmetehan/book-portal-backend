@@ -14,4 +14,6 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     List<Book> findAllByNameAndActiveTrueOrderByName(String name);
 
     Page<Book> findAllByNameAndActiveTrueOrderByName(String name, Pageable pageable);
+
+    Page<Book> findById(long id, Pageable pageable);
 }

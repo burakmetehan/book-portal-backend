@@ -2,6 +2,7 @@ package tr.com.obss.jip.springfinal.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import tr.com.obss.jip.springfinal.entity.Book;
 import tr.com.obss.jip.springfinal.exception.BookNotFoundException;
@@ -61,6 +62,10 @@ public class BookService {
      */
     public Book getBookById(long id) {
         return findById(id);
+    }
+
+    public Page<Book> getBookById(long id, Pageable pageable) {
+        return bookRepository.findById(id, pageable);
     }
 
     /**

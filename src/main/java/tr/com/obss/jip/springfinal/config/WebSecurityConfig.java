@@ -62,32 +62,29 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             response.sendError(SC_UNAUTHORIZED, ex.getMessage());
         }).and();*/
 
-        http.authorizeHttpRequests()
-                   .antMatchers("/authenticate")
-                   .permitAll()
-                   .anyRequest()
-                   .hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
-                   .and().exceptionHandling()
-                   .accessDeniedHandler((req, resp, ex) -> resp.setStatus(SC_FORBIDDEN)) // if someone tries to access protected resource but doesn't have enough permissions
-                   .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                   .and().formLogin()
-            .loginProcessingUrl("/login") // "/login"
-            //.successHandler((req, resp, auth) -> resp.setStatus(SC_OK)) // success authentication
-            .failureHandler((req, resp, ex) -> resp.setStatus(SC_FORBIDDEN));
+        http = http.authorizeHttpRequests().antMatchers("/authenticate").permitAll().anyRequest()
+                   //.hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
+                   .permitAll().and();
+
 
         // Set unauthorized and forbidden requests exception handler
-        /*http = http.exceptionHandling()
+        http = http.exceptionHandling()
                    .accessDeniedHandler((req, resp, ex) -> resp.setStatus(SC_FORBIDDEN)) // if someone tries to access protected resource but doesn't have enough permissions
                    .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                   .and();*/
+                   .and();
 
         // Login and logout
         /*http.formLogin()
             .loginProcessingUrl("/login")
             .successHandler((req, resp, auth) -> resp.setStatus(SC_OK)) // success authentication
-            .failureHandler((req, resp, ex) -> resp.setStatus(SC_FORBIDDEN));
-*/
-                /*
+            .failureHandler((req, resp, ex) -> resp.setStatus(SC_FORBIDDEN))
+            .and()
+            .logout()
+            .logoutUrl("/logout")
+            .invalidateHttpSession(true)
+            .deleteCookies("JSESSIONID");*/
+
+        /*
                 .formLogin()
             .loginPage("/login")
             *//*.loginProcessingUrl("/login")*//*.and()
