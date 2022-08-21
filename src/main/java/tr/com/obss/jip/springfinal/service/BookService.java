@@ -28,7 +28,7 @@ public class BookService {
      * @return {@link Book Book} or throw {@link BookNotFoundException BookNotFoundException}
      */
     private Book findById(long id) {
-        Optional<Book> bookOptional = bookRepository.findById(id);
+        Optional<Book> bookOptional = bookRepository.findByIdAndActiveTrue(id);
         if (bookOptional.isPresent()) {
             return bookOptional.get();
         } else {
@@ -41,7 +41,7 @@ public class BookService {
      * @return List of all books
      */
     public List<Book> getAllBooks() {
-        return bookRepository.findAll();
+        return bookRepository.findAllByActiveTrueOrderByName();
     }
 
     /**
@@ -52,7 +52,7 @@ public class BookService {
      */
     public Page<Book> getAllBooksWithPagination(int pageNumber, int pageSize) {
         var paged = PageRequest.of(pageNumber, pageSize);
-        return bookRepository.findAll(paged);
+        return bookRepository.findAllByActiveTrueOrderByName(paged);
     }
 
     /**
@@ -61,11 +61,17 @@ public class BookService {
      * @return @return {@link Book Book} if exists
      */
     public Book getBookById(long id) {
-        return findById(id);
+        return this.findById(id);
     }
 
+    /**
+     *
+     * @param id ID of the book which is going to be searched
+     * @param pageable pageable for one entry with Page Size: 1, Page Number: 0
+     * @return Page of book that consist of only one book at most
+     */
     public Page<Book> getBookById(long id, Pageable pageable) {
-        return bookRepository.findById(id, pageable);
+        return bookRepository.findByIdAndActiveTrue(id, pageable);
     }
 
     /**
@@ -89,11 +95,22 @@ public class BookService {
         return bookRepository.findAllByNameAndActiveTrueOrderByName(name, paged);
     }
 
+    /**
+     * Creating a book in database
+     * @param bookDTO
+     * @return
+     */
     public Book saveBook(BookDTO bookDTO) {
         Book book = new Book(bookDTO);
         return bookRepository.save(book);
     }
 
+    /** @TODO Change it to make it return empty object or false when there is a missing field.
+     * Updating a book in database
+     * @param id
+     * @param bookDTO
+     * @return {@link Book Book} Object if it is successful; otherwise,
+     */
     public Book updateBook(long id, BookUpdateDTO bookDTO) {
         Book book = this.findById(id);
 
