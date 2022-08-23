@@ -92,7 +92,7 @@ public class BookService {
      */
     public Page<Book> getAllBooksByNameWithPagination(String name, int pageNumber, int pageSize) {
         var paged = PageRequest.of(pageNumber, pageSize);
-        return bookRepository.findAllByNameAndActiveTrueOrderByName(name, paged);
+        return bookRepository.findAllByNameContainsIgnoreCaseAndActiveTrueOrderByName(name, paged);
     }
 
     /**
@@ -114,19 +114,9 @@ public class BookService {
     public Book updateBook(long id, BookUpdateDTO bookDTO) {
         Book book = this.findById(id);
 
-        String newName = bookDTO.getName();
-        String newAuthor = bookDTO.getAuthor();
         int newPageCount = bookDTO.getPageCount();
         String newPublisher = bookDTO.getPublisher();
         Date newPublicationDate = bookDTO.getPublicationDate();
-
-        if (newName != null && !newName.isEmpty()) {
-            book.setName(newName);
-        }
-
-        if (newAuthor != null && !newAuthor.isEmpty()) {
-            book.setAuthor(newAuthor);
-        }
 
         if (newPageCount > 0 && newPageCount < Integer.MAX_VALUE) {
             book.setPageCount(newPageCount);
@@ -148,4 +138,6 @@ public class BookService {
         book.setActive(false);
         return bookRepository.save(book);
     }
+
+    // @TODO Add hard delete/remove and name containing search
 }

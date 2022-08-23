@@ -118,4 +118,6 @@ public class BookController {
     public ResponseEntity<Book> removeBook(@PathVariable(name = "bookId") long id) {
         return ResponseEntity.ok(bookService.removeBook(id));
     }
+
+    // @TODO Add hard delete/remove
 }

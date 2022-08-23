@@ -1,6 +1,7 @@
 package tr.com.obss.jip.springfinal.controller;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +31,7 @@ public class UserController {
      * @param pageSize non-negative integer, default is 10
      * @return Page of the users according to given parameters
      */
-    @GetMapping("/")
+    @GetMapping("")
     @Secured("ROLE_ADMIN") // Only admins can search users
     public ResponseEntity<Page<User>> searchAllUsers(
             @RequestParam(name = "pageNumber", defaultValue = "0") int pageNumber,
@@ -45,8 +46,8 @@ public class UserController {
      */
     @GetMapping("/{id}")
     @Secured("ROLE_ADMIN") // Only admins can search users
-    public ResponseEntity<User> getUser(@PathVariable(name = "id") long id) {
-        return ResponseEntity.ok(userService.getUserById(id));
+    public ResponseEntity<Page<User>> getUser(@PathVariable(name = "id") long id) {
+        return ResponseEntity.ok(userService.getUserById(id, PageRequest.of(0, 1))); // Only one user. Page is needed for frontend
     }
 
     /**
@@ -58,11 +59,11 @@ public class UserController {
      */
     @GetMapping("/name/{username}")
     @Secured("ROLE_ADMIN") // Only admins can search users
-    public ResponseEntity<User> searchUserByUsername(
+    public ResponseEntity<Page<User>> searchUserByUsername(
             @PathVariable(name = "username") String username,
             @RequestParam(name = "pageNumber", defaultValue = "0") int pageNumber,
             @RequestParam(name = "pageSize", defaultValue = "10") int pageSize) {
-        return ResponseEntity.ok(userService.getUserByUsername(username));
+        return ResponseEntity.ok(userService.getAllUsersByUsernameWithPagination(username, pageNumber, pageSize));
     }
 
     @GetMapping("/name/sw-{username}")
@@ -108,4 +109,6 @@ public class UserController {
     public ResponseEntity<User> removeUser(@PathVariable(name = "id") long id) {
         return ResponseEntity.ok(userService.removeUser(id));
     }
+
+    // @TODO Add hard delete/remove
 }

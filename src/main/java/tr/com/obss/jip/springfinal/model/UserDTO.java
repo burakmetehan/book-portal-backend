@@ -1,7 +1,5 @@
 package tr.com.obss.jip.springfinal.model;
 
-import tr.com.obss.jip.springfinal.entity.User;
-
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;

@@ -2,6 +2,7 @@ package tr.com.obss.jip.springfinal.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import tr.com.obss.jip.springfinal.entity.Role;
@@ -15,6 +16,7 @@ import tr.com.obss.jip.springfinal.repo.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class UserService {
@@ -47,11 +49,15 @@ public class UserService {
 
     public Page<User> getAllUsersWithPagination(int pageNumber, int pageSize) {
         var paged = PageRequest.of(pageNumber, pageSize);
-        return userRepository.findAll(paged);
+        return userRepository.findAllByActiveTrueOrderByUsername(paged);
     }
 
     public User getUserById(long id) {
-        return findById(id);
+        return this.findById(id);
+    }
+
+    public Page<User> getUserById(long id, Pageable pageable) {
+        return userRepository.findByIdAndActiveTrue(id, pageable);
     }
 
     public User getUserByUsername(String username) {
@@ -61,6 +67,11 @@ public class UserService {
         } else {
             throw new UserNotFoundException("User is not found!");
         }
+    }
+
+    public Page<User> getAllUsersByUsernameWithPagination(String username, int pageNumber, int pageSize) {
+        var paged = PageRequest.of(pageNumber, pageSize);
+        return userRepository.findAllByUsernameContainsIgnoreCaseAndActiveTrueOrderByUsername(username, paged);
     }
 
     public List<User> getUsersByUsernameStartsWith(String username) {
@@ -81,7 +92,8 @@ public class UserService {
         // Every user has ROLE_USER by default
         Optional<Role> roleOptional = roleRepository.findByName(ROLE_USER);
         if (roleOptional.isPresent()) {
-            user.addRole(roleOptional.get());
+            user.setRoles(Set.of(roleOptional.get()));
+            //user.addRole(roleOptional.get());
         } else {
             throw new RoleNotFoundException("Role is not found!");
         }

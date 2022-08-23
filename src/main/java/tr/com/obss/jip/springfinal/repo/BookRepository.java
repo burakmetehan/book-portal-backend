@@ -22,4 +22,6 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     List<Book> findAllByActiveTrueOrderByName();
 
     Page<Book> findAllByActiveTrueOrderByName(Pageable pageable);
+
+    Page<Book> findAllByNameContainsIgnoreCaseAndActiveTrueOrderByName(String name, Pageable pageable);
 }
