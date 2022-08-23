@@ -5,10 +5,6 @@ import javax.validation.constraints.Min;
 import java.util.Date;
 
 public class BookUpdateDTO {
-    private String name;
-
-    private String author;
-
     @Min(value=0)
     @Max(value=Integer.MAX_VALUE)
     private int pageCount;
@@ -16,22 +12,6 @@ public class BookUpdateDTO {
     private String publisher;
 
     private Date publicationDate;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
 
     public int getPageCount() {
         return pageCount;
