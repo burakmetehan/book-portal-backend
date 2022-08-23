@@ -19,4 +19,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByUsernameStartsWithAndActiveTrueOrderByUsername(String username);
 
     Page<User> findByUsernameStartsWithAndActiveTrueOrderByUsername(String username, Pageable pageable);
+
+    Page<User> findAllByActiveTrueOrderByUsername(Pageable pageable);
+
+    Page<User> findByIdAndActiveTrue(long id, Pageable pageable);
+
+    Page<User> findAllByUsernameContainsIgnoreCaseAndActiveTrueOrderByUsername(String username, Pageable pageable);
 }
