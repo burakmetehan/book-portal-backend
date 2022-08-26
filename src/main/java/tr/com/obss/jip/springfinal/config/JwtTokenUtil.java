@@ -15,41 +15,61 @@ import java.util.function.Function;
 
 @Component
 public class JwtTokenUtil implements Serializable {
-    private static final long serialVersionUID = -2550185165626007488L;
-
-    public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60; // in seconds
+    @Value("${jwt.token.validity}")
+    public long JWT_TOKEN_VALIDITY;
 
     @Value("${jwt.secret}")
     private String secretKey;
 
-    // Retrieving username from jwt token
+    /**
+     * Retrieve username from jwt token
+     * @param token JWT Token
+     * @return Username inside token
+     */
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
     }
 
-    // Retrieving expiration date from jwt token
+    /**
+     * Retrieve expiration date from jwt token
+     * @param token JWT Token
+     * @return {@link Date Date} object from token
+     */
     public Date getExpirationDateFromToken(String token) {
         return getClaimFromToken(token, Claims::getExpiration);
     }
 
-    // Retrieving specific claim from token
+    /**
+     * Retrieve specific claim from token
+     */
     public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = getAllClaimsFromToken(token);
         return claimsResolver.apply(claims);
     }
 
-    // Retrieving all information from token. Secret key will be used.
+    /**
+     * Retrieve all information from token.
+     * @param token JWT token
+     * @return {@link Claims Claims} object that contains claims inside token.
+     */
     public Claims getAllClaimsFromToken(String token) {
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
     }
 
-    // Check whether the token has expired or not
+    /**
+     * Check whether the token has expired or not
+     * @param token JWT Token
+     * @return true if token is not expired; otherwise, false
+     */
     private Boolean isTokenExpired(String token) {
         final Date expirationDate = getExpirationDateFromToken(token);
         return expirationDate.before(new Date());
     }
 
-    // Generating token for user
+    /**
+     * Generate new JWT token
+     * @return Generated JWT token
+     */
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         return doGenerateToken(claims, userDetails.getUsername());
@@ -70,7 +90,12 @@ public class JwtTokenUtil implements Serializable {
                    .compact();
     }
 
-    // Validating token
+    /**
+     * Validate token
+     * @param token JWT token
+     * @param userDetails {@code UserDetails UserDetails}
+     * @return true if the token is valid; otherwise, false
+     */
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = getUsernameFromToken(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));

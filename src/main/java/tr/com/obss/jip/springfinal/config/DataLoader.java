@@ -1,5 +1,6 @@
 package tr.com.obss.jip.springfinal.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,8 +19,11 @@ public class DataLoader implements ApplicationRunner {
     public static final String ROLE_ADMIN = "ROLE_ADMIN";
     public static final String ROLE_USER = "ROLE_USER";
 
-    private static final String DEFAULT_ADMIN_USERNAME = "admin";
-    private static final String DEFAULT_ADMIN_PASSWORD = "admin";
+    @Value("${data-loader.admin.username}")
+    private String DEFAULT_ADMIN_USERNAME;
+
+    @Value("${data-loader.admin.password}")
+    private String DEFAULT_ADMIN_PASSWORD;
 
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;

@@ -20,20 +20,17 @@ import static javax.servlet.http.HttpServletResponse.*;
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-
+    private final AuthEntryPoint authEntryPoint;
     private final UserDetailsService jwtUserDetailsService;
-
     private final JwtRequestFilter jwtRequestFilter;
-
     private final PasswordEncoder passwordEncoder;
 
     public WebSecurityConfig(
-            JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
+            AuthEntryPoint authEntryPoint,
             UserDetailsService jwtUserDetailsService,
             JwtRequestFilter jwtRequestFilter,
             PasswordEncoder passwordEncoder) {
-        this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
+        this.authEntryPoint = authEntryPoint;
         this.jwtUserDetailsService = jwtUserDetailsService;
         this.jwtRequestFilter = jwtRequestFilter;
         this.passwordEncoder = passwordEncoder;
@@ -58,38 +55,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // Set session management to stateless
         http = http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and();
 
-        // Set unauthorized requests exception handler
-        /*http = http.exceptionHandling().authenticationEntryPoint((request, response, ex) -> {
-            response.sendError(SC_UNAUTHORIZED, ex.getMessage());
-        }).and();*/
-
+        // Authorize Request
         http = http.authorizeHttpRequests()
-                   .antMatchers("/authenticate")
-                   .permitAll()
-                   .antMatchers("/login")
+                   .antMatchers("/auth/**")
                    .permitAll()
                    .anyRequest()
                    .hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
                    .and();
 
-
         // Set unauthorized and forbidden requests exception handler
         http = http.exceptionHandling()
                    .accessDeniedHandler((req, resp, ex) -> resp.setStatus(SC_FORBIDDEN)) // if someone tries to access protected resource but doesn't have enough permissions
-                   .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                   .authenticationEntryPoint(authEntryPoint)
                    .and();
-
-        // Login and logout
-        //http.formLogin().loginPage("/login").loginProcessingUrl("/login");
-       /* http.formLogin()
-            .loginProcessingUrl("/login")
-            .successHandler((req, resp, auth) -> resp.setStatus(SC_OK)) // success authentication
-            .failureHandler((req, resp, ex) -> resp.setStatus(SC_FORBIDDEN))
-            .and()
-            .logout()
-            .logoutUrl("/logout")
-            .invalidateHttpSession(true)
-            .deleteCookies("JSESSIONID");*/
 
         // Add JWT token filter
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
