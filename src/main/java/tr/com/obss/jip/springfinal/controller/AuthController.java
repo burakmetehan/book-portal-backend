@@ -6,7 +6,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import tr.com.obss.jip.springfinal.config.JwtTokenUtil;
+import tr.com.obss.jip.springfinal.util.JwtTokenUtil;
 import tr.com.obss.jip.springfinal.entity.Role;
 import tr.com.obss.jip.springfinal.entity.User;
 import tr.com.obss.jip.springfinal.model.*;

@@ -35,7 +35,7 @@ public class UserController {
      * @return The page of the users
      */
     @GetMapping("")
-    public ResponseEntity<Page<User>> searchAllBooksWithPagination(
+    public ResponseEntity<Page<User>> searchAllUsersWithPagination(
             @RequestParam(name = "pageNumber", defaultValue = "0", required = false) int pageNumber,
             @RequestParam(name = "pageSize", defaultValue = "5", required = false) int pageSize) {
         return ResponseEntity.ok(userService.getAllUsersWithPagination(pageNumber, pageSize));
@@ -48,7 +48,7 @@ public class UserController {
      * @return The user with id.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Page<User>> searchBookById(@PathVariable(name = "id") long id) {
+    public ResponseEntity<Page<User>> searchUserById(@PathVariable(name = "id") long id) {
         PageRequest pageRequest = PageRequest.of(0, 1);
         return ResponseEntity.ok(userService.getUserByIdWithPagination(id, pageRequest)); // Only one user. Page is for frontend
     }
