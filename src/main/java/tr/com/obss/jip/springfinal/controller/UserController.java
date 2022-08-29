@@ -25,90 +25,134 @@ public class UserController {
 
     /* ##### GET Mappings ##### */
 
+    /* ##### Paged Returns ##### */
+
     /**
+     * <em>Paged Function:</em> Can be used to search all users
      *
-     * @param pageNumber non-negative integer, default is 0
-     * @param pageSize non-negative integer, default is 10
-     * @return Page of the users according to given parameters
+     * @param pageNumber non-negative integer
+     * @param pageSize   non-negative integer
+     * @return The page of the users
      */
     @GetMapping("")
-    @Secured("ROLE_ADMIN") // Only admins can search users
-    public ResponseEntity<Page<User>> searchAllUsers(
-            @RequestParam(name = "pageNumber", defaultValue = "0") int pageNumber,
-            @RequestParam(name = "pageSize", defaultValue = "10") int pageSize) {
+    public ResponseEntity<Page<User>> searchAllBooksWithPagination(
+            @RequestParam(name = "pageNumber", defaultValue = "0", required = false) int pageNumber,
+            @RequestParam(name = "pageSize", defaultValue = "5", required = false) int pageSize) {
         return ResponseEntity.ok(userService.getAllUsersWithPagination(pageNumber, pageSize));
     }
 
     /**
+     * <em>Paged Function:</em> Can be used to search a user by id
      *
-     * @param id id of the user
-     * @return user if the user exist
+     * @param id Take an id from request parameters, namely id.
+     * @return The user with id.
      */
     @GetMapping("/{id}")
-    @Secured("ROLE_ADMIN") // Only admins can search users
-    public ResponseEntity<Page<User>> getUser(@PathVariable(name = "id") long id) {
-        return ResponseEntity.ok(userService.getUserById(id, PageRequest.of(0, 1))); // Only one user. Page is needed for frontend
+    public ResponseEntity<Page<User>> searchBookById(@PathVariable(name = "id") long id) {
+        PageRequest pageRequest = PageRequest.of(0, 1);
+        return ResponseEntity.ok(userService.getUserByIdWithPagination(id, pageRequest)); // Only one user. Page is for frontend
     }
 
     /**
+     * <em>Paged Function:</em> Can be used to search a user by username
      *
-     * @param username username of the user
-     * @param pageNumber non-negative integer, default is 0
-     * @param pageSize non-negative integer, default is 10
-     * @return Page of the users according to given parameters
+     * @param username   name of the user
+     * @param pageNumber non-negative integer
+     * @param pageSize   non-negative integer
+     * @return The page of the users
      */
-    @GetMapping("/name/{username}")
-    @Secured("ROLE_ADMIN") // Only admins can search users
-    public ResponseEntity<Page<User>> searchUserByUsername(
-            @PathVariable(name = "username") String username,
-            @RequestParam(name = "pageNumber", defaultValue = "0") int pageNumber,
-            @RequestParam(name = "pageSize", defaultValue = "10") int pageSize) {
+    @GetMapping("/name")
+    public ResponseEntity<Page<User>> searchUsersByName(
+            @RequestParam(name = "username", defaultValue = "") String username,
+            @RequestParam(name = "pageNumber", defaultValue = "0", required = false) int pageNumber,
+            @RequestParam(name = "pageSize", defaultValue = "5", required = false) int pageSize) {
         return ResponseEntity.ok(userService.getAllUsersByUsernameWithPagination(username, pageNumber, pageSize));
     }
 
-    @GetMapping("/name/sw-{username}")
-    @Secured("ROLE_ADMIN") // Only admins can search users
-    public ResponseEntity<Page<User>> searchUsersByUsernameWithPagination(
-            @PathVariable(name = "username") String username,
-            @RequestParam(name = "pageNumber", defaultValue = "0") int pageNumber,
-            @RequestParam(name = "pageSize", defaultValue = "10") int pageSize) {
-        return ResponseEntity.ok(userService.getUsersByUsernameWithPagination(username, pageNumber, pageSize));
-    }
+    /* ##### List Returns ##### */
 
-    @GetMapping("/no-pagination")
-    @Secured("ROLE_ADMIN") // Only admins can search users
+    /**
+     * <em>List Function:</em> Can be used to search all users
+     *
+     * @return The list of the users
+     */
+    @GetMapping("/no-page")
     public ResponseEntity<List<User>> searchAllUsersWithoutPagination() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    @GetMapping("/no-pagination/sw-{username}")
-    @Secured("ROLE_ADMIN") // Only admins can search users
-    public ResponseEntity<List<User>> searchUserByUsernameStartsWith(@PathVariable(name = "username") String name) {
-        return ResponseEntity.ok(userService.getUsersByUsernameStartsWith(name));
+    /**
+     * <em>List Function:</em> Can be used to search a user by id
+     *
+     * @param id Take an id from request parameters, namely id.
+     * @return The user with id.
+     */
+    @GetMapping("/no-page/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable(name = "id") long id) {
+        return ResponseEntity.ok(userService.getUserById(id));
+    }
+
+    /**
+     * <em>List Function:</em> Can be used to search a users by username
+     *
+     * @param username username of the book
+     * @return The list of the users
+     */
+    @GetMapping("/no-page/username")
+    public ResponseEntity<List<User>> searchUsersByNameWithoutPagination(
+            @RequestParam(name = "username", defaultValue = "") String username) {
+        return ResponseEntity.ok(userService.getAllUsersByUsername(username));
     }
 
     /* ##### POST Mappings ##### */
+
+    /**
+     * Can be used to create/add user
+     *
+     * @param userDTO model that consist of `name` and `password`
+     * @return The user that is added
+     */
     @PostMapping("")
     @Secured("ROLE_ADMIN") // Only admins can add users
     public ResponseEntity<User> createUser(@Valid @RequestBody UserDTO userDTO) {
         return ResponseEntity.ok(userService.saveUser(userDTO));
     }
 
-   /* ##### PUT Mappings ##### */
+    /* ##### PUT Mappings ##### */
+
+    /**
+     * Can be used to update the user
+     *
+     * @param id            the id of the user
+     * @param userUpdateDTO model that consist of `password`
+     * @return The updated user
+     */
     @PutMapping("/{id}")
     @Secured("ROLE_ADMIN") // Only admins can update users
     public ResponseEntity<User> updateUser(
-            @PathVariable(name = "id") long id,
-            @Valid @RequestBody UserUpdateDTO userUpdateDTO) {
+            @PathVariable(name = "id") long id, @Valid @RequestBody UserUpdateDTO userUpdateDTO) {
         return ResponseEntity.ok(userService.updateUser(id, userUpdateDTO));
     }
 
     /* ##### DELETE Mappings ##### */
+
+    /**
+     * Can be used to delete the user.
+     *
+     * @param id           the id of the user
+     * @param isHardDelete whether hard or soft delete
+     * @return The deleted user if it is soft delete; otherwise, empty user
+     */
     @DeleteMapping("/{id}")
     @Secured("ROLE_ADMIN") // Only admins can delete users
-    public ResponseEntity<User> removeUser(@PathVariable(name = "id") long id) {
-        return ResponseEntity.ok(userService.removeUser(id));
+    public ResponseEntity<User> removeUser(
+            @PathVariable(name = "id") long id,
+            @RequestParam(name = "hardDelete", defaultValue = "false", required = false) boolean isHardDelete) {
+        if (isHardDelete) {
+            userService.deleteUser(id);
+            return ResponseEntity.ok(new User());
+        } else {
+            return ResponseEntity.ok(userService.removeUser(id));
+        }
     }
-
-    // @TODO Add hard delete/remove
 }

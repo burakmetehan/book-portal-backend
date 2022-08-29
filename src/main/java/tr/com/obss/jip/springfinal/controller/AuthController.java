@@ -21,13 +21,9 @@ import java.util.Set;
 @CrossOrigin(origins = "*")
 public class AuthController {
     private final AuthenticationManager authenticationManager;
-
     private final JwtTokenUtil jwtTokenUtil;
-
     private final JwtUserDetailsService userDetailsService;
-
     private final UserRepository userRepository;
-
     private final JwtUserDetailsService jwtUserDetailsService;
 
     @Value("${jwt.token.prefix}")
@@ -46,33 +42,40 @@ public class AuthController {
         this.jwtUserDetailsService = jwtUserDetailsService;
     }
 
+    /**
+     * Checking the JWT token is valid.
+     *
+     * @param authDTO {@code AuthDTO AuthDTO} object inside RequestBody
+     * @return {@code AuthResponse AuthResponse} object
+     */
     @PostMapping("")
-    public ResponseEntity<?> checkAuthenticationToken(@RequestBody AuthDTO authDTO) {
+    public ResponseEntity<AuthResponse> checkAuthenticationToken(@RequestBody AuthDTO authDTO) {
         String token = authDTO.getToken();
         String username = authDTO.getUsername();
 
         try {
             if (token == null || token.isEmpty() || username == null || username.isEmpty()) {
-                return ResponseEntity.ok().body(new AuthResponse(false));
+                return ResponseEntity.badRequest().body(new AuthResponse(false));
             }
 
             token = token.substring(7);
             if (token.isEmpty()) { // no proper token
-                return ResponseEntity.ok().body(new AuthResponse(false));
+                return ResponseEntity.badRequest().body(new AuthResponse(false));
             }
 
             String tokenUsername = jwtTokenUtil.getUsernameFromToken(token);
             if (!username.equals(tokenUsername)) { // username does not match
-                return ResponseEntity.ok().body(new AuthResponse(false));
+                return ResponseEntity.badRequest().body(new AuthResponse(false));
             }
 
             UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(tokenUsername);
             Boolean isValid = jwtTokenUtil.validateToken(token, userDetails);
 
             if (isValid) {
+
+                // Checking whether admin or not
                 boolean isAdmin = false;
                 var roles = userDetails.getAuthorities();
-
                 for (var role : roles) {
                     if (role.getAuthority().equals("ROLE_ADMIN")) {
                         isAdmin = true;
@@ -83,15 +86,19 @@ public class AuthController {
                 String newToken = String.format("%s %s", tokenPrefix, jwtTokenUtil.generateToken(userDetails));
                 return ResponseEntity.ok().body(new AuthResponse(isAdmin, true, newToken, username));
             } else {
-                return ResponseEntity.ok().body(new AuthResponse(false));
+                return ResponseEntity.badRequest().body(new AuthResponse(false, false, "Not Valid token", ""));
             }
         } catch (Exception e) {
-            return ResponseEntity.ok().body(new AuthResponse(false));
+            return ResponseEntity.badRequest().body(new AuthResponse(false));
         }
     }
 
+    /**
+     * @param authenticationRequest {@code JwtRequest JwtRequest} object
+     * @return {@code AuthResponse AuthResponse} object
+     */
     @PostMapping("/login")
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) {
+    public ResponseEntity<AuthResponse> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) {
         authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
@@ -99,10 +106,9 @@ public class AuthController {
 
         Optional<User> optionalUser = userRepository.findByUsernameAndActiveTrue(authenticationRequest.getUsername());
         if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-            Set<Role> roles = user.getRoles();
+            // Checking whether admin or not
             boolean isAdmin = false;
-
+            Set<Role> roles = optionalUser.get().getRoles();
             for (Role role : roles) {
                 if (role.getName().equals("ROLE_ADMIN")) {
                     isAdmin = true;
@@ -110,15 +116,13 @@ public class AuthController {
                 }
             }
 
-            return ResponseEntity.ok().body(new JwtResponse(true, isAdmin, token, new UserResponseDTO(optionalUser.get())));
+            return ResponseEntity.ok().body(new AuthResponse(isAdmin, true, token, optionalUser.get().getUsername()));
         } else {
-            return ResponseEntity.ok().body(new JwtResponse(false, false, token));
+            return ResponseEntity.badRequest().body(new AuthResponse(false));
         }
     }
 
     private void authenticate(String username, String password) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
     }
-
-
 }

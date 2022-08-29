@@ -24,64 +24,93 @@ public class BookController {
         this.bookService = bookService;
     }
 
-    /* ##### GET Mappings ##### */
+    /* ########## GET Mappings ########## */
+
+    /* ##### Paged Returns ##### */
 
     /**
-     * Can be used to search all books
+     * <em>Paged Function:</em> Can be used to search all books
+     *
      * @param pageNumber non-negative integer
-     * @param pageSize non-negative integer
+     * @param pageSize   non-negative integer
      * @return The page of the books
      */
     @GetMapping("")
     public ResponseEntity<Page<Book>> searchAllBooksWithPagination(
-            @RequestParam(name = "pageNumber", defaultValue = "0") int pageNumber,
-            @RequestParam(name = "pageSize", defaultValue = "10") int pageSize) {
+            @RequestParam(name = "pageNumber", defaultValue = "0", required = false) int pageNumber,
+            @RequestParam(name = "pageSize", defaultValue = "5", required = false) int pageSize) {
         return ResponseEntity.ok(bookService.getAllBooksWithPagination(pageNumber, pageSize));
     }
 
     /**
-     * Can be used to search a book by id
+     * <em>Paged Function:</em> Can be used to search a book by id
+     *
      * @param id Take an id from request parameters, namely id.
-     * @return The book with id. If it is not found, Error 500 is thrown
+     * @return The book with id.
      */
     @GetMapping("/{id}")
     public ResponseEntity<Page<Book>> searchBookById(@PathVariable(name = "id") long id) {
-        return ResponseEntity.ok(bookService.getBookById(id, PageRequest.of(0, 1))); // Only one user. Page is needed for frontend
+        PageRequest pageRequest = PageRequest.of(0, 1);
+        return ResponseEntity.ok(bookService.getBookById(id, pageRequest)); // Only one book. Page is for frontend
     }
 
     /**
-     * Can be used to search a book by name
-     * @param name name of the book
+     * <em>Paged Function:</em> Can be used to search a book by name
+     *
+     * @param name       name of the book
      * @param pageNumber non-negative integer
-     * @param pageSize non-negative integer
+     * @param pageSize   non-negative integer
      * @return The page of the books
      */
-    @GetMapping("/name/{book_name}")
+    @GetMapping("/name")
     public ResponseEntity<Page<Book>> searchBooksByName(
-            @PathVariable(name = "book_name") String name,
-            @RequestParam(name = "pageNumber", defaultValue = "0") int pageNumber,
-            @RequestParam(name = "pageSize", defaultValue = "10") int pageSize) {
+            @RequestParam(name = "bookName", defaultValue = "") String name,
+            @RequestParam(name = "pageNumber", defaultValue = "0", required = false) int pageNumber,
+            @RequestParam(name = "pageSize", defaultValue = "5", required = false) int pageSize) {
         return ResponseEntity.ok(bookService.getAllBooksByNameWithPagination(name, pageNumber, pageSize));
     }
 
+    /* ##### List Returns ##### */
+
     /**
-     * @return List of all the books
+     * <em>List Function:</em> Can be used to search all books
+     *
+     * @return The list of the books
      */
-    @GetMapping("/no-pagination")
+    @GetMapping("/no-page")
     public ResponseEntity<List<Book>> searchAllBooksWithoutPagination() {
         return ResponseEntity.ok(bookService.getAllBooks());
     }
 
-    @GetMapping("/no-pagination/{book_name}")
-    public ResponseEntity<List<Book>> searchBooksByNameWithoutPagination(@PathVariable(name = "book_name") String name) {
+    /**
+     * <em>List Function:</em> Can be used to search a book by id
+     *
+     * @param id Take an id from request parameters, namely id.
+     * @return The book with id.
+     */
+    @GetMapping("/no-page/{id}")
+    public ResponseEntity<Book> getBookById(@PathVariable(name = "id") long id) {
+        return ResponseEntity.ok(bookService.getBookById(id));
+    }
+
+    /**
+     * <em>List Function:</em> Can be used to search a book by name
+     *
+     * @param name name of the book
+     * @return The list of the books
+     */
+    @GetMapping("/no-page/name")
+    public ResponseEntity<List<Book>> searchBooksByNameWithoutPagination(
+            @RequestParam(name = "bookName", defaultValue = "") String name) {
         return ResponseEntity.ok(bookService.getAllBooksByName(name));
     }
 
 
-    /* ##### POST Mappings ##### */
+    /* ########## POST Mappings ########## */
 
     /**
      * Can be used to create/add book
+     *
      * @param bookDTO model that consist of `name`, `author`, `pageCount`, `type`, `publisher` and `publicationDate`
      * @return The book that is added
      */
@@ -91,11 +120,12 @@ public class BookController {
         return ResponseEntity.ok(bookService.saveBook(bookDTO));
     }
 
-    /* ##### PUT Mappings ##### */
+    /* ########## PUT Mappings ########## */
 
     /**
      * Can be used to update the book
-     * @param id the id of the book
+     *
+     * @param id            the id of the book
      * @param bookUpdateDTO model that consist of `name`, `author`, `pageCount`, `publisher` and `publicationDate`
      * @return The updated book
      */
@@ -106,18 +136,25 @@ public class BookController {
         return ResponseEntity.ok(bookService.updateBook(id, bookUpdateDTO));
     }
 
-    /* ##### DELETE Mappings ##### */
+    /* ########## DELETE Mappings ########## */
 
     /**
-     * Can be used to delete the book
-     * @param id the id of the book
-     * @return The deleted book
+     * Can be used to delete the book.
+     *
+     * @param id           the id of the book
+     * @param isHardDelete whether hard or soft delete
+     * @return The deleted book if it is soft delete; otherwise, empty book
      */
     @DeleteMapping("/{bookId}")
     @Secured("ROLE_ADMIN") // Only admins can delete books
-    public ResponseEntity<Book> removeBook(@PathVariable(name = "bookId") long id) {
-        return ResponseEntity.ok(bookService.removeBook(id));
+    public ResponseEntity<Book> removeBook(
+            @PathVariable(name = "bookId") long id,
+            @RequestParam(name = "hardDelete", defaultValue = "false", required = false) boolean isHardDelete) {
+        if (isHardDelete) {
+            bookService.deleteBook(id);
+            return ResponseEntity.ok().body(new Book());
+        } else {
+            return ResponseEntity.ok(bookService.removeBook(id));
+        }
     }
-
-    // @TODO Add hard delete/remove
 }
