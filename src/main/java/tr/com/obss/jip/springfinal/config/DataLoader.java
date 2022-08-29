@@ -38,8 +38,8 @@ public class DataLoader implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        boolean isUserRoleExists = roleRepository.existsByName(ROLE_USER);
-        boolean isAdminRoleExists = roleRepository.existsByName(ROLE_ADMIN);
+        boolean isUserRoleExists = roleRepository.existsByNameAndActiveTrue(ROLE_USER);
+        boolean isAdminRoleExists = roleRepository.existsByNameAndActiveTrue(ROLE_ADMIN);
         boolean isAdminUserExists = userRepository.existsByUsername(DEFAULT_ADMIN_USERNAME);
 
         if (!isUserRoleExists) {
@@ -59,8 +59,8 @@ public class DataLoader implements ApplicationRunner {
             adminUser.setUsername(DEFAULT_ADMIN_USERNAME);
             adminUser.setPassword(encoder.encode(DEFAULT_ADMIN_PASSWORD));
 
-            Optional<Role> adminRole = roleRepository.findByName(ROLE_ADMIN);
-            Optional<Role> userRole = roleRepository.findByName(ROLE_USER);
+            Optional<Role> adminRole = roleRepository.findByNameAndActiveTrue(ROLE_ADMIN);
+            Optional<Role> userRole = roleRepository.findByNameAndActiveTrue(ROLE_USER);
 
             if (adminRole.isPresent() && userRole.isPresent()) {
                 adminUser.setRoles(Set.of(adminRole.get(), userRole.get()));
