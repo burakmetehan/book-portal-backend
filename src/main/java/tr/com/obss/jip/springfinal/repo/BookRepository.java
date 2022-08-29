@@ -11,10 +11,6 @@ import java.util.Optional;
 
 @Repository
 public interface BookRepository extends JpaRepository<Book, Long> {
-    List<Book> findAllByNameAndActiveTrueOrderByName(String name);
-
-    Page<Book> findAllByNameAndActiveTrueOrderByName(String name, Pageable pageable);
-
     Optional<Book> findByIdAndActiveTrue(long id);
 
     Page<Book> findByIdAndActiveTrue(long id, Pageable pageable);
@@ -22,6 +18,8 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     List<Book> findAllByActiveTrueOrderByName();
 
     Page<Book> findAllByActiveTrueOrderByName(Pageable pageable);
+
+    List<Book> findAllByNameContainsIgnoreCaseAndActiveTrueOrderByName(String name);
 
     Page<Book> findAllByNameContainsIgnoreCaseAndActiveTrueOrderByName(String name, Pageable pageable);
 }
