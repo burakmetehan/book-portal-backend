@@ -51,14 +51,13 @@ public class BookService {
      * @return Page of all books
      */
     public Page<Book> getAllBooksWithPagination(int pageNumber, int pageSize) {
-        var paged = PageRequest.of(pageNumber, pageSize);
-        return bookRepository.findAllByActiveTrueOrderByName(paged);
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
+        return bookRepository.findAllByActiveTrueOrderByName(pageRequest);
     }
 
     /**
-     *
      * @param id ID of the book which is going to be searched
-     * @return @return {@link Book Book} if exists
+     * @return {@link Book Book} if exists
      */
     public Book getBookById(long id) {
         return this.findById(id);
@@ -80,7 +79,7 @@ public class BookService {
      * @return List of books if exists
      */
     public List<Book> getAllBooksByName(String name) {
-        return bookRepository.findAllByNameAndActiveTrueOrderByName(name);
+        return bookRepository.findAllByNameContainsIgnoreCaseAndActiveTrueOrderByName(name);
     }
 
     /**
@@ -91,32 +90,28 @@ public class BookService {
      * @return Page of books if exists
      */
     public Page<Book> getAllBooksByNameWithPagination(String name, int pageNumber, int pageSize) {
-        var paged = PageRequest.of(pageNumber, pageSize);
-        return bookRepository.findAllByNameContainsIgnoreCaseAndActiveTrueOrderByName(name, paged);
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
+        return bookRepository.findAllByNameContainsIgnoreCaseAndActiveTrueOrderByName(name, pageRequest);
     }
 
     /**
      * Creating a book in database
-     * @param bookDTO
-     * @return
      */
     public Book saveBook(BookDTO bookDTO) {
         Book book = new Book(bookDTO);
         return bookRepository.save(book);
     }
 
-    /** @TODO Change it to make it return empty object or false when there is a missing field.
+    /**
      * Updating a book in database
-     * @param id
-     * @param bookDTO
-     * @return {@link Book Book} Object if it is successful; otherwise,
+     * @return {@link Book Book} Object
      */
-    public Book updateBook(long id, BookUpdateDTO bookDTO) {
+    public Book updateBook(long id, BookUpdateDTO bookUpdateDTO) {
         Book book = this.findById(id);
 
-        int newPageCount = bookDTO.getPageCount();
-        String newPublisher = bookDTO.getPublisher();
-        Date newPublicationDate = bookDTO.getPublicationDate();
+        int newPageCount = bookUpdateDTO.getPageCount();
+        String newPublisher = bookUpdateDTO.getPublisher();
+        Date newPublicationDate = bookUpdateDTO.getPublicationDate();
 
         if (newPageCount > 0 && newPageCount < Integer.MAX_VALUE) {
             book.setPageCount(newPageCount);
@@ -133,11 +128,20 @@ public class BookService {
         return bookRepository.save(book);
     }
 
+    /**
+     * Soft delete
+     */
     public Book removeBook(long id) {
         Book book = this.findById(id);
         book.setActive(false);
         return bookRepository.save(book);
     }
 
-    // @TODO Add hard delete/remove and name containing search
+    /**
+     *
+     */
+    public void deleteBook(long id) {
+        Book book = this.findById(id);
+        bookRepository.delete(book);
+    }
 }

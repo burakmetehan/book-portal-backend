@@ -34,8 +34,12 @@ public class UserService {
         this.encoder = encoder;
     }
 
+    /**
+     * @param id ID of user to search
+     * @return {@link User User} or throw {@link UserNotFoundException UserNotFoundException}
+     */
     private User findById(long id) {
-        Optional<User> userOptional = userRepository.findById(id);
+        Optional<User> userOptional = userRepository.findByIdAndActiveTrue(id);
         if (userOptional.isPresent()) {
             return userOptional.get();
         } else {
@@ -43,25 +47,46 @@ public class UserService {
         }
     }
 
+    /**
+     * @return List of all users
+     */
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        return userRepository.findAllByActiveTrueOrderByUsername();
     }
 
+    /**
+     * @param pageNumber Zero-based page index, must not be negative
+     * @param pageSize   The size of the page to be returned, must be greater than 0
+     * @return Page of all user
+     */
     public Page<User> getAllUsersWithPagination(int pageNumber, int pageSize) {
-        var paged = PageRequest.of(pageNumber, pageSize);
-        return userRepository.findAllByActiveTrueOrderByUsername(paged);
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
+        return userRepository.findAllByActiveTrueOrderByUsername(pageRequest);
     }
 
+    /**
+     * @param id ID of the user which is going to be searched
+     * @return {@link User User} if exists
+     */
     public User getUserById(long id) {
         return this.findById(id);
     }
 
-    public Page<User> getUserById(long id, Pageable pageable) {
+    /**
+     * @param id       ID of the user which is going to be searched
+     * @param pageable {@link Pageable Pageable} object
+     * @return Page of user.
+     */
+    public Page<User> getUserByIdWithPagination(long id, Pageable pageable) {
         return userRepository.findByIdAndActiveTrue(id, pageable);
     }
 
+    /**
+     * @param username Username of the searched user
+     * @return {@link User User} object
+     */
     public User getUserByUsername(String username) {
-        Optional<User> optionalUser = userRepository.findByUsername(username);
+        Optional<User> optionalUser = userRepository.findByUsernameAndActiveTrue(username);
         if (optionalUser.isPresent()) {
             return optionalUser.get();
         } else {
@@ -69,20 +94,31 @@ public class UserService {
         }
     }
 
+    /**
+     * @param username Username of the searched user
+     * @return List of users
+     */
+    public List<User> getAllUsersByUsername(String username) {
+        return userRepository.findAllByUsernameContainsIgnoreCaseAndActiveTrueOrderByUsername(username);
+    }
+
+    /**
+     * @param username   Username of the searched user
+     * @param pageNumber Zero-based page index, must not be negative
+     * @param pageSize   The size of the page to be returned, must be greater than 0.
+     * @return Page of users if exists
+     */
     public Page<User> getAllUsersByUsernameWithPagination(String username, int pageNumber, int pageSize) {
-        var paged = PageRequest.of(pageNumber, pageSize);
-        return userRepository.findAllByUsernameContainsIgnoreCaseAndActiveTrueOrderByUsername(username, paged);
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
+        return userRepository.findAllByUsernameContainsIgnoreCaseAndActiveTrueOrderByUsername(username, pageRequest);
     }
 
-    public List<User> getUsersByUsernameStartsWith(String username) {
-        return userRepository.findByUsernameStartsWithAndActiveTrueOrderByUsername(username);
-    }
-
-    public Page<User> getUsersByUsernameWithPagination(String name, int pageNumber, int pageSize) {
-        var paged = PageRequest.of(pageNumber, pageSize);
-        return userRepository.findByUsernameStartsWithAndActiveTrueOrderByUsername(name, paged);
-    }
-
+    /**
+     * Adding user to database
+     *
+     * @param userDTO includes username and password
+     * @return {@link User User} object that is added.
+     */
     public User saveUser(UserDTO userDTO) {
         User user = new User();
 
@@ -90,10 +126,9 @@ public class UserService {
         user.setPassword(encoder.encode(userDTO.getPassword()));
 
         // Every user has ROLE_USER by default
-        Optional<Role> roleOptional = roleRepository.findByName(ROLE_USER);
+        Optional<Role> roleOptional = roleRepository.findByNameAndActiveTrue(ROLE_USER);
         if (roleOptional.isPresent()) {
             user.setRoles(Set.of(roleOptional.get()));
-            //user.addRole(roleOptional.get());
         } else {
             throw new RoleNotFoundException("Role is not found!");
         }
@@ -101,24 +136,37 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    /**
+     * Update the password of user
+     *
+     * @param id            ID of the user
+     * @param userUpdateDTO includes password.
+     * @return {@link User User} object that is updated.
+     */
     public User updateUser(long id, UserUpdateDTO userUpdateDTO) {
         User user = this.findById(id);
         user.setPassword(encoder.encode(userUpdateDTO.getPassword()));
         return userRepository.save(user);
     }
 
+    /**
+     * Soft delete of user
+     *
+     * @param id ID of user
+     * @return {@link User User} object that is removed.
+     */
     public User removeUser(long id) {
         User user = this.findById(id);
         user.setActive(!user.isActive());
         return userRepository.save(user);
     }
 
-    /*public List<UserResponseDTO> getAllUsers() { // can be directly get the
-        List<UserResponseDTO> userResponseDTOList = new ArrayList<>();
-        for (User user : userRepository.findAll()) {
-            userResponseDTOList.add(new UserResponseDTO(user));
-        }
-
-        return userResponseDTOList;
-    }*/
+    /**
+     * Hard delete of user.
+     *
+     * @param id ID of the user.
+     */
+    public void deleteUser(long id) {
+        userRepository.deleteById(id);
+    }
 }
