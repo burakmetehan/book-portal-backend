@@ -41,7 +41,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, String>> handleThrowable(HttpServletRequest request, Exception exception) {
+    public ResponseEntity<Map<String, String>> handleException(HttpServletRequest request, Exception exception) {
         return new ResponseEntity<>(createExceptionMap(request, exception, HttpStatus.INTERNAL_SERVER_ERROR),
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }
