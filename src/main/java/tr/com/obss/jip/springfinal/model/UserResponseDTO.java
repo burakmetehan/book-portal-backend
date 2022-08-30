@@ -1,10 +1,9 @@
 package tr.com.obss.jip.springfinal.model;
 
-import tr.com.obss.jip.springfinal.entity.Book;
-import tr.com.obss.jip.springfinal.entity.Role;
 import tr.com.obss.jip.springfinal.entity.User;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Used for ResponseEntity. Hiding the password from response.
@@ -19,11 +18,16 @@ public class UserResponseDTO {
     private final long id;
     private final String username;
 
-    private final Set<Book> readList;
-    private final Set<Book> favoriteList;
-    private final Set<Role> roles;
+    private final Set<BookResponseDTO> readList;
+    private final Set<BookResponseDTO> favoriteList;
+    private final Set<RoleResponseDTO> roles;
 
-    public UserResponseDTO(long id, String username, Set<Book> readList, Set<Book> favoriteList, Set<Role> roles) {
+    public UserResponseDTO(
+            long id,
+            String username,
+            Set<BookResponseDTO> readList,
+            Set<BookResponseDTO> favoriteList,
+            Set<RoleResponseDTO> roles) {
         this.id = id;
         this.username = username;
         this.readList = readList;
@@ -34,9 +38,10 @@ public class UserResponseDTO {
     public UserResponseDTO(User user) {
         this.id = user.getId();
         this.username = user.getUsername();
-        this.readList = user.getReadList();
-        this.favoriteList = user.getFavoriteList();
-        this.roles = user.getRoles();
+
+        this.roles = user.getRoles().stream().map(RoleResponseDTO::new).collect(Collectors.toSet());
+        this.readList = user.getReadList().stream().map(BookResponseDTO::new).collect(Collectors.toSet());
+        this.favoriteList = user.getFavoriteList().stream().map(BookResponseDTO::new).collect(Collectors.toSet());
     }
 
     public long getId() {
@@ -47,15 +52,15 @@ public class UserResponseDTO {
         return username;
     }
 
-    public Set<Book> getReadList() {
+    public Set<BookResponseDTO> getReadList() {
         return readList;
     }
 
-    public Set<Book> getFavoriteList() {
+    public Set<BookResponseDTO> getFavoriteList() {
         return favoriteList;
     }
 
-    public Set<Role> getRoles() {
+    public Set<RoleResponseDTO> getRoles() {
         return roles;
     }
 }
