@@ -1,13 +1,11 @@
 package tr.com.obss.jip.springfinal.model;
 
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 public class UserDTO {
     @NotBlank
     @Size(max = 255, min = 3, message = "Please enter a valid username!")
-    @Email
     private String username;
 
     @NotBlank

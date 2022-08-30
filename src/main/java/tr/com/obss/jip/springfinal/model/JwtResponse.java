@@ -1,28 +1,44 @@
 package tr.com.obss.jip.springfinal.model;
 
-import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class JwtResponse implements Serializable {
-    private static final long serialVersionUID = -8091879091924046844L;
+public class JwtResponse {
+    private final boolean valid;
+    private final boolean admin;
     private final String jwtToken;
-    private final String username;
-    private final boolean isAdmin;
+    private final UserResponseDTO userResponseDTO;
 
-    public JwtResponse(String jwtToken, String username, Boolean isAdmin) {
+    public JwtResponse(boolean valid, boolean admin, String jwtToken) {
+        this.valid = valid;
+        this.admin = admin;
         this.jwtToken = jwtToken;
-        this.username = username;
-        this.isAdmin = isAdmin;
+        this.userResponseDTO = null;
     }
 
-    public String getToken() {
-        return this.jwtToken;
+    public JwtResponse(boolean valid, boolean admin, String jwtToken, UserResponseDTO userResponseDTO) {
+        this.valid = valid;
+        this.admin = admin;
+        this.jwtToken = jwtToken;
+        this.userResponseDTO = userResponseDTO;
     }
 
-    public String getUsername() {
-        return this.username;
+    @JsonProperty("isValid")
+    public boolean isValid() {
+        return valid;
     }
 
+    @JsonProperty("isAdmin")
     public boolean isAdmin() {
-        return this.isAdmin;
+        return admin;
+    }
+
+    @JsonProperty("token")
+    public String getJwtToken() {
+        return jwtToken;
+    }
+
+    @JsonProperty("user")
+    public UserResponseDTO getUserResponseDTO() {
+        return userResponseDTO;
     }
 }

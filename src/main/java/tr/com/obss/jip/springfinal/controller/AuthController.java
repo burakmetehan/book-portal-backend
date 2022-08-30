@@ -46,26 +46,26 @@ public class AuthController {
      * Checking the JWT token is valid.
      *
      * @param authDTO {@code AuthDTO AuthDTO} object inside RequestBody
-     * @return {@code AuthResponse AuthResponse} object
+     * @return {@code AuthResponseDTO AuthResponseDTO} object
      */
     @PostMapping("")
-    public ResponseEntity<AuthResponse> checkAuthenticationToken(@RequestBody AuthDTO authDTO) {
+    public ResponseEntity<AuthResponseDTO> checkAuthenticationToken(@RequestBody AuthDTO authDTO) {
         String token = authDTO.getToken();
         String username = authDTO.getUsername();
 
         try {
             if (token == null || token.isEmpty() || username == null || username.isEmpty()) {
-                return ResponseEntity.badRequest().body(new AuthResponse(false));
+                return ResponseEntity.badRequest().body(new AuthResponseDTO(false));
             }
 
             token = token.substring(7);
             if (token.isEmpty()) { // no proper token
-                return ResponseEntity.badRequest().body(new AuthResponse(false));
+                return ResponseEntity.badRequest().body(new AuthResponseDTO(false));
             }
 
             String tokenUsername = jwtTokenUtil.getUsernameFromToken(token);
             if (!username.equals(tokenUsername)) { // username does not match
-                return ResponseEntity.badRequest().body(new AuthResponse(false));
+                return ResponseEntity.badRequest().body(new AuthResponseDTO(false));
             }
 
             UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(tokenUsername);
@@ -84,21 +84,21 @@ public class AuthController {
                 }
 
                 String newToken = String.format("%s %s", tokenPrefix, jwtTokenUtil.generateToken(userDetails));
-                return ResponseEntity.ok().body(new AuthResponse(isAdmin, true, newToken, username));
+                return ResponseEntity.ok().body(new AuthResponseDTO(isAdmin, true, newToken, username));
             } else {
-                return ResponseEntity.badRequest().body(new AuthResponse(false, false, "Not Valid token", ""));
+                return ResponseEntity.badRequest().body(new AuthResponseDTO(false, false, "Not Valid token", ""));
             }
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new AuthResponse(false));
+            return ResponseEntity.badRequest().body(new AuthResponseDTO(false));
         }
     }
 
     /**
      * @param authenticationRequest {@code JwtRequest JwtRequest} object
-     * @return {@code AuthResponse AuthResponse} object
+     * @return {@code AuthResponseDTO AuthResponseDTO} object
      */
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) {
+    public ResponseEntity<AuthResponseDTO> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) {
         authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
@@ -116,9 +116,9 @@ public class AuthController {
                 }
             }
 
-            return ResponseEntity.ok().body(new AuthResponse(isAdmin, true, token, optionalUser.get().getUsername()));
+            return ResponseEntity.ok().body(new AuthResponseDTO(isAdmin, true, token, optionalUser.get().getUsername()));
         } else {
-            return ResponseEntity.badRequest().body(new AuthResponse(false));
+            return ResponseEntity.badRequest().body(new AuthResponseDTO(false));
         }
     }
 

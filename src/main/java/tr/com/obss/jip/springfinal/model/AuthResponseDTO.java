@@ -2,20 +2,20 @@ package tr.com.obss.jip.springfinal.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class AuthResponse {
+public class AuthResponseDTO {
     private boolean admin;
     private boolean valid;
     private String token;
     private String username;
 
-    public AuthResponse(boolean valid) {
+    public AuthResponseDTO(boolean valid) {
         this.admin = false;
         this.valid = valid;
         this.token = null;
         this.username = null;
     }
 
-    public AuthResponse(boolean admin, boolean valid, String token, String username) {
+    public AuthResponseDTO(boolean admin, boolean valid, String token, String username) {
         this.admin = admin;
         this.valid = valid;
         this.token = token;
