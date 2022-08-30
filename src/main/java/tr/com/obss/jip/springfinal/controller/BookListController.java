@@ -3,6 +3,7 @@ package tr.com.obss.jip.springfinal.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tr.com.obss.jip.springfinal.entity.User;
+import tr.com.obss.jip.springfinal.model.UserResponseDTO;
 import tr.com.obss.jip.springfinal.service.BookListService;
 
 @RestController
@@ -25,7 +26,7 @@ public class BookListController {
      * @return a {@link User User} object who is modified.
      */
     @PutMapping("/read")
-    public ResponseEntity<User> readListControl(
+    public ResponseEntity<UserResponseDTO> readListControl(
             @RequestParam(name = "userId") long userId,
             @RequestParam(name = "bookId") long bookId,
             @RequestParam(name = "isAdd") boolean isAdd) {
@@ -45,7 +46,7 @@ public class BookListController {
      * @return a {@link User User} object who is modified.
      */
     @PutMapping("/fav")
-    public ResponseEntity<User> favoriteListControl(
+    public ResponseEntity<UserResponseDTO> favoriteListControl(
             @RequestParam(name = "userId") long userId,
             @RequestParam(name = "bookId") long bookId,
             @RequestParam(name = "isAdd") boolean isAdd) {

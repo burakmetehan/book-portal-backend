@@ -10,6 +10,7 @@ import tr.com.obss.jip.springfinal.entity.User;
 import tr.com.obss.jip.springfinal.exception.RoleNotFoundException;
 import tr.com.obss.jip.springfinal.exception.UserNotFoundException;
 import tr.com.obss.jip.springfinal.model.UserDTO;
+import tr.com.obss.jip.springfinal.model.UserResponseDTO;
 import tr.com.obss.jip.springfinal.model.UserUpdateDTO;
 import tr.com.obss.jip.springfinal.repo.RoleRepository;
 import tr.com.obss.jip.springfinal.repo.UserRepository;
@@ -47,38 +48,8 @@ public class UserService {
         }
     }
 
-    /**
-     * @return List of all users
-     */
-    public List<User> getAllUsers() {
-        return userRepository.findAllByActiveTrueOrderByUsername();
-    }
-
-    /**
-     * @param pageNumber Zero-based page index, must not be negative
-     * @param pageSize   The size of the page to be returned, must be greater than 0
-     * @return Page of all user
-     */
-    public Page<User> getAllUsersWithPagination(int pageNumber, int pageSize) {
-        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
-        return userRepository.findAllByActiveTrueOrderByUsername(pageRequest);
-    }
-
-    /**
-     * @param id ID of the user which is going to be searched
-     * @return {@link User User} if exists
-     */
-    public User getUserById(long id) {
+    public User findUserById(long id) {
         return this.findById(id);
-    }
-
-    /**
-     * @param id       ID of the user which is going to be searched
-     * @param pageable {@link Pageable Pageable} object
-     * @return Page of user.
-     */
-    public Page<User> getUserByIdWithPagination(long id, Pageable pageable) {
-        return userRepository.findByIdAndActiveTrue(id, pageable);
     }
 
     /**
@@ -95,10 +66,44 @@ public class UserService {
     }
 
     /**
+     * @return List of all users
+     */
+    public List<UserResponseDTO> getAllUsers() {
+        return userRepository.findAllByActiveTrueOrderByUsername();
+    }
+
+    /**
+     * @param pageNumber Zero-based page index, must not be negative
+     * @param pageSize   The size of the page to be returned, must be greater than 0
+     * @return Page of all user
+     */
+    public Page<UserResponseDTO> getAllUsersWithPagination(int pageNumber, int pageSize) {
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
+        return userRepository.findAllByActiveTrueOrderByUsername(pageRequest);
+    }
+
+    /**
+     * @param id ID of the user which is going to be searched
+     * @return {@link User User} if exists
+     */
+    public UserResponseDTO getUserById(long id) {
+        return new UserResponseDTO(this.findById(id));
+    }
+
+    /**
+     * @param id       ID of the user which is going to be searched
+     * @param pageable {@link Pageable Pageable} object
+     * @return Page of user.
+     */
+    public Page<UserResponseDTO> getUserByIdWithPagination(long id, Pageable pageable) {
+        return userRepository.findByIdAndActiveTrue(id, pageable);
+    }
+
+    /**
      * @param username Username of the searched user
      * @return List of users
      */
-    public List<User> getAllUsersByUsername(String username) {
+    public List<UserResponseDTO> getAllUsersByUsername(String username) {
         return userRepository.findAllByUsernameContainsIgnoreCaseAndActiveTrueOrderByUsername(username);
     }
 
@@ -108,7 +113,7 @@ public class UserService {
      * @param pageSize   The size of the page to be returned, must be greater than 0.
      * @return Page of users if exists
      */
-    public Page<User> getAllUsersByUsernameWithPagination(String username, int pageNumber, int pageSize) {
+    public Page<UserResponseDTO> getAllUsersByUsernameWithPagination(String username, int pageNumber, int pageSize) {
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
         return userRepository.findAllByUsernameContainsIgnoreCaseAndActiveTrueOrderByUsername(username, pageRequest);
     }
@@ -119,7 +124,7 @@ public class UserService {
      * @param userDTO includes username and password
      * @return {@link User User} object that is added.
      */
-    public User saveUser(UserDTO userDTO) {
+    public UserResponseDTO saveUser(UserDTO userDTO) {
         User user = new User();
 
         user.setUsername(userDTO.getUsername());
@@ -133,7 +138,7 @@ public class UserService {
             throw new RoleNotFoundException("Role is not found!");
         }
 
-        return userRepository.save(user);
+        return new UserResponseDTO(userRepository.save(user));
     }
 
     /**
@@ -143,10 +148,10 @@ public class UserService {
      * @param userUpdateDTO includes password.
      * @return {@link User User} object that is updated.
      */
-    public User updateUser(long id, UserUpdateDTO userUpdateDTO) {
+    public UserResponseDTO updateUser(long id, UserUpdateDTO userUpdateDTO) {
         User user = this.findById(id);
         user.setPassword(encoder.encode(userUpdateDTO.getPassword()));
-        return userRepository.save(user);
+        return new UserResponseDTO(userRepository.save(user));
     }
 
     /**
@@ -155,10 +160,10 @@ public class UserService {
      * @param id ID of user
      * @return {@link User User} object that is removed.
      */
-    public User removeUser(long id) {
+    public UserResponseDTO removeUser(long id) {
         User user = this.findById(id);
         user.setActive(!user.isActive());
-        return userRepository.save(user);
+        return new UserResponseDTO(userRepository.save(user));
     }
 
     /**

@@ -5,27 +5,27 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import tr.com.obss.jip.springfinal.entity.User;
+import tr.com.obss.jip.springfinal.model.UserResponseDTO;
 
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> findByUsernameAndActiveTrue(String username);
-
-    Page<User> findByUsernameAndActiveTrue(String username, Pageable pageable);
-
     Optional<User> findByIdAndActiveTrue(long id);
 
-    Page<User> findByIdAndActiveTrue(long id, Pageable pageable);
+    Optional<User> findByUsernameAndActiveTrue(String username);
 
-    List<User> findAllByUsernameContainsIgnoreCaseAndActiveTrueOrderByUsername(String username);
+    Page<UserResponseDTO> findByIdAndActiveTrue(long id, Pageable pageable);
 
-    Page<User> findAllByUsernameContainsIgnoreCaseAndActiveTrueOrderByUsername(String username, Pageable pageable);
+    List<UserResponseDTO> findAllByUsernameContainsIgnoreCaseAndActiveTrueOrderByUsername(String username);
 
-    List<User> findAllByActiveTrueOrderByUsername();
+    Page<UserResponseDTO> findAllByUsernameContainsIgnoreCaseAndActiveTrueOrderByUsername(
+            String username, Pageable pageable);
 
-    Page<User> findAllByActiveTrueOrderByUsername(Pageable pageable);
+    List<UserResponseDTO> findAllByActiveTrueOrderByUsername();
+
+    Page<UserResponseDTO> findAllByActiveTrueOrderByUsername(Pageable pageable);
 
     boolean existsByUsername(String username);
 }

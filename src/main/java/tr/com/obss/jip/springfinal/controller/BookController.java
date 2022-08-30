@@ -6,8 +6,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
-import tr.com.obss.jip.springfinal.entity.Book;
 import tr.com.obss.jip.springfinal.model.BookDTO;
+import tr.com.obss.jip.springfinal.model.BookResponseDTO;
 import tr.com.obss.jip.springfinal.model.BookUpdateDTO;
 import tr.com.obss.jip.springfinal.service.BookService;
 
@@ -36,7 +36,7 @@ public class BookController {
      * @return The page of the books
      */
     @GetMapping("")
-    public ResponseEntity<Page<Book>> searchAllBooksWithPagination(
+    public ResponseEntity<Page<BookResponseDTO>> searchAllBooksWithPagination(
             @RequestParam(name = "pageNumber", defaultValue = "0", required = false) int pageNumber,
             @RequestParam(name = "pageSize", defaultValue = "5", required = false) int pageSize) {
         return ResponseEntity.ok(bookService.getAllBooksWithPagination(pageNumber, pageSize));
@@ -49,7 +49,7 @@ public class BookController {
      * @return The book with id.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Page<Book>> searchBookById(@PathVariable(name = "id") long id) {
+    public ResponseEntity<Page<BookResponseDTO>> searchBookById(@PathVariable(name = "id") long id) {
         PageRequest pageRequest = PageRequest.of(0, 1);
         return ResponseEntity.ok(bookService.getBookById(id, pageRequest)); // Only one book. Page is for frontend
     }
@@ -63,7 +63,7 @@ public class BookController {
      * @return The page of the books
      */
     @GetMapping("/name")
-    public ResponseEntity<Page<Book>> searchBooksByName(
+    public ResponseEntity<Page<BookResponseDTO>> searchBooksByName(
             @RequestParam(name = "bookName", defaultValue = "") String name,
             @RequestParam(name = "pageNumber", defaultValue = "0", required = false) int pageNumber,
             @RequestParam(name = "pageSize", defaultValue = "5", required = false) int pageSize) {
@@ -78,7 +78,7 @@ public class BookController {
      * @return The list of the books
      */
     @GetMapping("/no-page")
-    public ResponseEntity<List<Book>> searchAllBooksWithoutPagination() {
+    public ResponseEntity<List<BookResponseDTO>> searchAllBooksWithoutPagination() {
         return ResponseEntity.ok(bookService.getAllBooks());
     }
 
@@ -89,7 +89,7 @@ public class BookController {
      * @return The book with id.
      */
     @GetMapping("/no-page/{id}")
-    public ResponseEntity<Book> getBookById(@PathVariable(name = "id") long id) {
+    public ResponseEntity<BookResponseDTO> getBookById(@PathVariable(name = "id") long id) {
         return ResponseEntity.ok(bookService.getBookById(id));
     }
 
@@ -100,7 +100,7 @@ public class BookController {
      * @return The list of the books
      */
     @GetMapping("/no-page/name")
-    public ResponseEntity<List<Book>> searchBooksByNameWithoutPagination(
+    public ResponseEntity<List<BookResponseDTO>> searchBooksByNameWithoutPagination(
             @RequestParam(name = "bookName", defaultValue = "") String name) {
         return ResponseEntity.ok(bookService.getAllBooksByName(name));
     }
@@ -116,7 +116,7 @@ public class BookController {
      */
     @PostMapping("")
     @Secured("ROLE_ADMIN") // Only admins can add books
-    public ResponseEntity<Book> createBook(@Valid @RequestBody @DateTimeFormat BookDTO bookDTO) {
+    public ResponseEntity<BookResponseDTO> createBook(@Valid @RequestBody @DateTimeFormat BookDTO bookDTO) {
         return ResponseEntity.ok(bookService.saveBook(bookDTO));
     }
 
@@ -131,7 +131,7 @@ public class BookController {
      */
     @PutMapping("/{bookId}")
     @Secured("ROLE_ADMIN") // Only admins can update books
-    public ResponseEntity<Book> updateBook(
+    public ResponseEntity<BookResponseDTO> updateBook(
             @PathVariable(name = "bookId") long id, @Valid @RequestBody @DateTimeFormat BookUpdateDTO bookUpdateDTO) {
         return ResponseEntity.ok(bookService.updateBook(id, bookUpdateDTO));
     }
@@ -147,12 +147,12 @@ public class BookController {
      */
     @DeleteMapping("/{bookId}")
     @Secured("ROLE_ADMIN") // Only admins can delete books
-    public ResponseEntity<Book> removeBook(
+    public ResponseEntity<Boolean> removeBook(
             @PathVariable(name = "bookId") long id,
             @RequestParam(name = "hardDelete", defaultValue = "false", required = false) boolean isHardDelete) {
         if (isHardDelete) {
-            bookService.deleteBook(id);
-            return ResponseEntity.ok().body(new Book());
+
+            return ResponseEntity.ok().body(bookService.deleteBook(id));
         } else {
             return ResponseEntity.ok(bookService.removeBook(id));
         }

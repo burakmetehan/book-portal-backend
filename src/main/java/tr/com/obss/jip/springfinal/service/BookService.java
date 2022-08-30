@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import tr.com.obss.jip.springfinal.entity.Book;
 import tr.com.obss.jip.springfinal.exception.BookNotFoundException;
 import tr.com.obss.jip.springfinal.model.BookDTO;
+import tr.com.obss.jip.springfinal.model.BookResponseDTO;
 import tr.com.obss.jip.springfinal.model.BookUpdateDTO;
 import tr.com.obss.jip.springfinal.repo.BookRepository;
 
@@ -36,11 +37,15 @@ public class BookService {
         }
     }
 
+    public Book findBookById(long id) {
+        return this.findById(id);
+    }
+
     /**
      *
      * @return List of all books
      */
-    public List<Book> getAllBooks() {
+    public List<BookResponseDTO> getAllBooks() {
         return bookRepository.findAllByActiveTrueOrderByName();
     }
 
@@ -50,7 +55,7 @@ public class BookService {
      * @param pageSize The size of the page to be returned, must be greater than 0
      * @return Page of all books
      */
-    public Page<Book> getAllBooksWithPagination(int pageNumber, int pageSize) {
+    public Page<BookResponseDTO> getAllBooksWithPagination(int pageNumber, int pageSize) {
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
         return bookRepository.findAllByActiveTrueOrderByName(pageRequest);
     }
@@ -59,8 +64,8 @@ public class BookService {
      * @param id ID of the book which is going to be searched
      * @return {@link Book Book} if exists
      */
-    public Book getBookById(long id) {
-        return this.findById(id);
+    public BookResponseDTO getBookById(long id) {
+        return new BookResponseDTO(this.findById(id));
     }
 
     /**
@@ -69,7 +74,7 @@ public class BookService {
      * @param pageable pageable for one entry with Page Size: 1, Page Number: 0
      * @return Page of book that consist of only one book at most
      */
-    public Page<Book> getBookById(long id, Pageable pageable) {
+    public Page<BookResponseDTO> getBookById(long id, Pageable pageable) {
         return bookRepository.findByIdAndActiveTrue(id, pageable);
     }
 
@@ -78,7 +83,7 @@ public class BookService {
      * @param name Name of the searched book
      * @return List of books if exists
      */
-    public List<Book> getAllBooksByName(String name) {
+    public List<BookResponseDTO> getAllBooksByName(String name) {
         return bookRepository.findAllByNameContainsIgnoreCaseAndActiveTrueOrderByName(name);
     }
 
@@ -89,7 +94,7 @@ public class BookService {
      * @param pageSize The size of the page to be returned, must be greater than 0.
      * @return Page of books if exists
      */
-    public Page<Book> getAllBooksByNameWithPagination(String name, int pageNumber, int pageSize) {
+    public Page<BookResponseDTO> getAllBooksByNameWithPagination(String name, int pageNumber, int pageSize) {
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
         return bookRepository.findAllByNameContainsIgnoreCaseAndActiveTrueOrderByName(name, pageRequest);
     }
@@ -97,16 +102,16 @@ public class BookService {
     /**
      * Creating a book in database
      */
-    public Book saveBook(BookDTO bookDTO) {
+    public BookResponseDTO saveBook(BookDTO bookDTO) {
         Book book = new Book(bookDTO);
-        return bookRepository.save(book);
+        return new BookResponseDTO(bookRepository.save(book));
     }
 
     /**
      * Updating a book in database
      * @return {@link Book Book} Object
      */
-    public Book updateBook(long id, BookUpdateDTO bookUpdateDTO) {
+    public BookResponseDTO updateBook(long id, BookUpdateDTO bookUpdateDTO) {
         Book book = this.findById(id);
 
         int newPageCount = bookUpdateDTO.getPageCount();
@@ -125,23 +130,24 @@ public class BookService {
             book.setPublicationDate(newPublicationDate);
         }
 
-        return bookRepository.save(book);
+        return new BookResponseDTO(bookRepository.save(book));
     }
 
     /**
      * Soft delete
      */
-    public Book removeBook(long id) {
+    public Boolean removeBook(long id) {
         Book book = this.findById(id);
         book.setActive(false);
-        return bookRepository.save(book);
+        return Boolean.TRUE;
     }
 
     /**
      *
      */
-    public void deleteBook(long id) {
+    public Boolean deleteBook(long id) {
         Book book = this.findById(id);
         bookRepository.delete(book);
+        return Boolean.TRUE;
     }
 }

@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import tr.com.obss.jip.springfinal.entity.Book;
+import tr.com.obss.jip.springfinal.model.BookResponseDTO;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,13 +14,13 @@ import java.util.Optional;
 public interface BookRepository extends JpaRepository<Book, Long> {
     Optional<Book> findByIdAndActiveTrue(long id);
 
-    Page<Book> findByIdAndActiveTrue(long id, Pageable pageable);
+    Page<BookResponseDTO> findByIdAndActiveTrue(long id, Pageable pageable);
 
-    List<Book> findAllByActiveTrueOrderByName();
+    List<BookResponseDTO> findAllByActiveTrueOrderByName();
 
-    Page<Book> findAllByActiveTrueOrderByName(Pageable pageable);
+    Page<BookResponseDTO> findAllByActiveTrueOrderByName(Pageable pageable);
 
-    List<Book> findAllByNameContainsIgnoreCaseAndActiveTrueOrderByName(String name);
+    List<BookResponseDTO> findAllByNameContainsIgnoreCaseAndActiveTrueOrderByName(String name);
 
-    Page<Book> findAllByNameContainsIgnoreCaseAndActiveTrueOrderByName(String name, Pageable pageable);
+    Page<BookResponseDTO> findAllByNameContainsIgnoreCaseAndActiveTrueOrderByName(String name, Pageable pageable);
 }

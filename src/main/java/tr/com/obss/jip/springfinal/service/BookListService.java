@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import tr.com.obss.jip.springfinal.entity.Book;
 import tr.com.obss.jip.springfinal.entity.User;
 import tr.com.obss.jip.springfinal.exception.addbookerror;
+import tr.com.obss.jip.springfinal.model.UserResponseDTO;
 import tr.com.obss.jip.springfinal.repo.UserRepository;
 
 @Service
@@ -20,53 +21,81 @@ public class BookListService {
     }
 
 
-    public User addBookToReadList(long userId, long bookId) {
-        User user = userService.getUserById(userId);
-        Book book = bookService.getBookById(bookId);
+    /**
+     * Add book to read list of the user.
+     *
+     * @param userId ID of the user which the book will be added to its list
+     * @param bookId ID of the book which will be added to list of user
+     * @return {@link UserResponseDTO UserResponseDTO} object
+     */
+    public UserResponseDTO addBookToReadList(long userId, long bookId) {
+        User user = userService.findUserById(userId);
+        Book book = bookService.findBookById(bookId);
 
         boolean isSuccessful = user.addBookToReadList(book);
 
         if (isSuccessful) {
-            return userRepository.save(user);
+            return new UserResponseDTO(userRepository.save(user));
         } else {
             throw new addbookerror("Error in adding book!");
         }
     }
 
-    public User removeBookFromReadList(long userId, long bookId) {
-        User user = userService.getUserById(userId);
-        Book book = bookService.getBookById(bookId);
+    /**
+     * Remove book from read list of the user.
+     *
+     * @param userId ID of the user which the book will be added to its list
+     * @param bookId ID of the book which will be added to list of user
+     * @return {@link UserResponseDTO UserResponseDTO} object
+     */
+    public UserResponseDTO removeBookFromReadList(long userId, long bookId) {
+        User user = userService.findUserById(userId);
+        Book book = bookService.findBookById(bookId);
 
         boolean isSuccessful = user.removeBookFromReadList(book);
 
         if (isSuccessful) {
-            return userRepository.save(user);
+            return new UserResponseDTO(userRepository.save(user));
         } else {
             throw new addbookerror("Error in adding book!");
         }
     }
 
-    public User addBookToFavoriteList(long userId, long bookId) {
-        User user = userService.getUserById(userId);
-        Book book = bookService.getBookById(bookId);
+    /**
+     * Add book to favorite list of the user.
+     *
+     * @param userId ID of the user which the book will be added to its list
+     * @param bookId ID of the book which will be added to list of user
+     * @return {@link UserResponseDTO UserResponseDTO} object
+     */
+    public UserResponseDTO addBookToFavoriteList(long userId, long bookId) {
+        User user = userService.findUserById(userId);
+        Book book = bookService.findBookById(bookId);
 
         boolean isSuccessful = user.addBookToFavoriteList(book);
 
         if (isSuccessful) {
-            return userRepository.save(user);
+            return new UserResponseDTO(userRepository.save(user));
         } else {
             throw new addbookerror("Error in adding book!");
         }
     }
 
-    public User removeBookFromFavoriteList(long userId, long bookId) {
-        User user = userService.getUserById(userId);
-        Book book = bookService.getBookById(bookId);
+    /**
+     * Remove book from favorite list of the user.
+     *
+     * @param userId ID of the user which the book will be added to its list
+     * @param bookId ID of the book which will be added to list of user
+     * @return {@link UserResponseDTO UserResponseDTO} object
+     */
+    public UserResponseDTO removeBookFromFavoriteList(long userId, long bookId) {
+        User user = userService.findUserById(userId);
+        Book book = bookService.findBookById(bookId);
 
         boolean isSuccessful = user.removeBookFromFavoriteList(book);
 
         if (isSuccessful) {
-            return userRepository.save(user);
+            return new UserResponseDTO(userRepository.save(user));
         } else {
             throw new addbookerror("Error in adding book!");
         }

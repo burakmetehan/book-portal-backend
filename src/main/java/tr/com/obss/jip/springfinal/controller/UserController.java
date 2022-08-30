@@ -7,6 +7,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import tr.com.obss.jip.springfinal.entity.User;
 import tr.com.obss.jip.springfinal.model.UserDTO;
+import tr.com.obss.jip.springfinal.model.UserResponseDTO;
 import tr.com.obss.jip.springfinal.model.UserUpdateDTO;
 import tr.com.obss.jip.springfinal.service.UserService;
 
@@ -35,7 +36,7 @@ public class UserController {
      * @return The page of the users
      */
     @GetMapping("")
-    public ResponseEntity<Page<User>> searchAllUsersWithPagination(
+    public ResponseEntity<Page<UserResponseDTO>> searchAllUsersWithPagination(
             @RequestParam(name = "pageNumber", defaultValue = "0", required = false) int pageNumber,
             @RequestParam(name = "pageSize", defaultValue = "5", required = false) int pageSize) {
         return ResponseEntity.ok(userService.getAllUsersWithPagination(pageNumber, pageSize));
@@ -48,7 +49,7 @@ public class UserController {
      * @return The user with id.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Page<User>> searchUserById(@PathVariable(name = "id") long id) {
+    public ResponseEntity<Page<UserResponseDTO>> searchUserById(@PathVariable(name = "id") long id) {
         PageRequest pageRequest = PageRequest.of(0, 1);
         return ResponseEntity.ok(userService.getUserByIdWithPagination(id, pageRequest)); // Only one user. Page is for frontend
     }
@@ -62,7 +63,7 @@ public class UserController {
      * @return The page of the users
      */
     @GetMapping("/name")
-    public ResponseEntity<Page<User>> searchUsersByName(
+    public ResponseEntity<Page<UserResponseDTO>> searchUsersByName(
             @RequestParam(name = "username", defaultValue = "") String username,
             @RequestParam(name = "pageNumber", defaultValue = "0", required = false) int pageNumber,
             @RequestParam(name = "pageSize", defaultValue = "5", required = false) int pageSize) {
@@ -77,7 +78,7 @@ public class UserController {
      * @return The list of the users
      */
     @GetMapping("/no-page")
-    public ResponseEntity<List<User>> searchAllUsersWithoutPagination() {
+    public ResponseEntity<List<UserResponseDTO>> searchAllUsersWithoutPagination() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
@@ -88,7 +89,7 @@ public class UserController {
      * @return The user with id.
      */
     @GetMapping("/no-page/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable(name = "id") long id) {
+    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable(name = "id") long id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
@@ -99,7 +100,7 @@ public class UserController {
      * @return The list of the users
      */
     @GetMapping("/no-page/username")
-    public ResponseEntity<List<User>> searchUsersByNameWithoutPagination(
+    public ResponseEntity<List<UserResponseDTO>> searchUsersByNameWithoutPagination(
             @RequestParam(name = "username", defaultValue = "") String username) {
         return ResponseEntity.ok(userService.getAllUsersByUsername(username));
     }
@@ -114,7 +115,7 @@ public class UserController {
      */
     @PostMapping("")
     @Secured("ROLE_ADMIN") // Only admins can add users
-    public ResponseEntity<User> createUser(@Valid @RequestBody UserDTO userDTO) {
+    public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserDTO userDTO) {
         return ResponseEntity.ok(userService.saveUser(userDTO));
     }
 
@@ -129,7 +130,7 @@ public class UserController {
      */
     @PutMapping("/{id}")
     @Secured("ROLE_ADMIN") // Only admins can update users
-    public ResponseEntity<User> updateUser(
+    public ResponseEntity<UserResponseDTO> updateUser(
             @PathVariable(name = "id") long id, @Valid @RequestBody UserUpdateDTO userUpdateDTO) {
         return ResponseEntity.ok(userService.updateUser(id, userUpdateDTO));
     }
@@ -145,12 +146,12 @@ public class UserController {
      */
     @DeleteMapping("/{id}")
     @Secured("ROLE_ADMIN") // Only admins can delete users
-    public ResponseEntity<User> removeUser(
+    public ResponseEntity<UserResponseDTO> removeUser(
             @PathVariable(name = "id") long id,
             @RequestParam(name = "hardDelete", defaultValue = "false", required = false) boolean isHardDelete) {
         if (isHardDelete) {
             userService.deleteUser(id);
-            return ResponseEntity.ok(new User());
+            return ResponseEntity.ok(new UserResponseDTO(new User()));
         } else {
             return ResponseEntity.ok(userService.removeUser(id));
         }
