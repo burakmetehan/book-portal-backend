@@ -1,4 +1,4 @@
-package tr.com.obss.jip.springfinal.config;
+package tr.com.obss.jip.springfinal.util;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
