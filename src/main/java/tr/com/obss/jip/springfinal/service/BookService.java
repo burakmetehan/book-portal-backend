@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import tr.com.obss.jip.springfinal.entity.Book;
+import tr.com.obss.jip.springfinal.exception.BadRequestException;
 import tr.com.obss.jip.springfinal.exception.BookNotFoundException;
 import tr.com.obss.jip.springfinal.model.BookDTO;
 import tr.com.obss.jip.springfinal.model.BookResponseDTO;
@@ -24,7 +25,6 @@ public class BookService {
     }
 
     /**
-     *
      * @param id ID of book to search
      * @return {@link Book Book} or throw {@link BookNotFoundException BookNotFoundException}
      */
@@ -33,7 +33,7 @@ public class BookService {
         if (bookOptional.isPresent()) {
             return bookOptional.get();
         } else {
-            throw new BookNotFoundException("Book is not found!");
+            throw new BookNotFoundException(id);
         }
     }
 
@@ -42,7 +42,6 @@ public class BookService {
     }
 
     /**
-     *
      * @return List of all books
      */
     public List<BookResponseDTO> getAllBooks() {
@@ -50,9 +49,8 @@ public class BookService {
     }
 
     /**
-     *
      * @param pageNumber Zero-based page index, must not be negative
-     * @param pageSize The size of the page to be returned, must be greater than 0
+     * @param pageSize   The size of the page to be returned, must be greater than 0
      * @return Page of all books
      */
     public Page<BookResponseDTO> getAllBooksWithPagination(int pageNumber, int pageSize) {
@@ -69,34 +67,49 @@ public class BookService {
     }
 
     /**
-     *
-     * @param id ID of the book which is going to be searched
+     * @param id       ID of the book which is going to be searched
      * @param pageable pageable for one entry with Page Size: 1, Page Number: 0
      * @return Page of book that consist of only one book at most
      */
     public Page<BookResponseDTO> getBookById(long id, Pageable pageable) {
-        return bookRepository.findByIdAndActiveTrue(id, pageable);
+        Page<BookResponseDTO> books = bookRepository.findByIdAndActiveTrue(id, pageable);
+        if (books.isEmpty()) {
+            throw new BookNotFoundException(id);
+        } else {
+            return books;
+        }
     }
 
     /**
-     *
      * @param name Name of the searched book
      * @return List of books if exists
      */
     public List<BookResponseDTO> getAllBooksByName(String name) {
-        return bookRepository.findAllByNameContainsIgnoreCaseAndActiveTrueOrderByName(name);
+        List<BookResponseDTO> books = bookRepository.findAllByNameContainsIgnoreCaseAndActiveTrueOrderByName(name);
+        if (books.isEmpty()) {
+            throw new BookNotFoundException(name);
+        } else {
+            return books;
+        }
     }
 
     /**
-     *
-     * @param name Name of the searched book
+     * @param name       Name of the searched book
      * @param pageNumber Zero-based page index, must not be negative
-     * @param pageSize The size of the page to be returned, must be greater than 0.
+     * @param pageSize   The size of the page to be returned, must be greater than 0.
      * @return Page of books if exists
      */
     public Page<BookResponseDTO> getAllBooksByNameWithPagination(String name, int pageNumber, int pageSize) {
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
-        return bookRepository.findAllByNameContainsIgnoreCaseAndActiveTrueOrderByName(name, pageRequest);
+        Page<BookResponseDTO> books = bookRepository.findAllByNameContainsIgnoreCaseAndActiveTrueOrderByName(
+                name,
+                pageRequest);
+
+        if (books.isEmpty()) {
+            throw new BookNotFoundException(name);
+        } else {
+            return books;
+        }
     }
 
     /**
@@ -109,6 +122,7 @@ public class BookService {
 
     /**
      * Updating a book in database
+     *
      * @return {@link Book Book} Object
      */
     public BookResponseDTO updateBook(long id, BookUpdateDTO bookUpdateDTO) {
@@ -117,20 +131,29 @@ public class BookService {
         int newPageCount = bookUpdateDTO.getPageCount();
         String newPublisher = bookUpdateDTO.getPublisher();
         Date newPublicationDate = bookUpdateDTO.getPublicationDate();
+        boolean isUpdated = false;
 
         if (newPageCount > 0 && newPageCount < Integer.MAX_VALUE) {
             book.setPageCount(newPageCount);
+            isUpdated = true;
         }
 
         if (newPublisher != null && !newPublisher.isEmpty()) {
             book.setPublisher(newPublisher);
+            isUpdated = true;
         }
 
         if (newPublicationDate != null) {
             book.setPublicationDate(newPublicationDate);
+            isUpdated = true;
         }
 
-        return new BookResponseDTO(bookRepository.save(book));
+        if (isUpdated) {
+            return new BookResponseDTO(bookRepository.save(book));
+        } else {
+            throw new BadRequestException("Nothing is changed");
+        }
+
     }
 
     /**
@@ -139,15 +162,15 @@ public class BookService {
     public Boolean removeBook(long id) {
         Book book = this.findById(id);
         book.setActive(false);
+        bookRepository.save(book);
         return Boolean.TRUE;
     }
 
     /**
-     *
+     * Hard delete
      */
     public Boolean deleteBook(long id) {
-        Book book = this.findById(id);
-        bookRepository.delete(book);
+        bookRepository.deleteById(id);
         return Boolean.TRUE;
     }
 }

@@ -151,7 +151,6 @@ public class BookController {
             @PathVariable(name = "bookId") long id,
             @RequestParam(name = "hardDelete", defaultValue = "false", required = false) boolean isHardDelete) {
         if (isHardDelete) {
-
             return ResponseEntity.ok().body(bookService.deleteBook(id));
         } else {
             return ResponseEntity.ok(bookService.removeBook(id));

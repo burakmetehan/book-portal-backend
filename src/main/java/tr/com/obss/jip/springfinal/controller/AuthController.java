@@ -6,12 +6,16 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import tr.com.obss.jip.springfinal.util.JwtTokenUtil;
 import tr.com.obss.jip.springfinal.entity.Role;
 import tr.com.obss.jip.springfinal.entity.User;
-import tr.com.obss.jip.springfinal.model.*;
+import tr.com.obss.jip.springfinal.exception.BadRequestException;
+import tr.com.obss.jip.springfinal.exception.UserNotFoundException;
+import tr.com.obss.jip.springfinal.model.AuthDTO;
+import tr.com.obss.jip.springfinal.model.AuthResponseDTO;
+import tr.com.obss.jip.springfinal.model.JwtRequest;
 import tr.com.obss.jip.springfinal.repo.UserRepository;
 import tr.com.obss.jip.springfinal.service.JwtUserDetailsService;
+import tr.com.obss.jip.springfinal.util.JwtTokenUtil;
 
 import java.util.Optional;
 import java.util.Set;
@@ -49,47 +53,44 @@ public class AuthController {
      * @return {@code AuthResponseDTO AuthResponseDTO} object
      */
     @PostMapping("")
-    public ResponseEntity<AuthResponseDTO> checkAuthenticationToken(@RequestBody AuthDTO authDTO) {
+    public ResponseEntity<AuthResponseDTO> checkAuthenticationToken(@RequestBody AuthDTO authDTO) throws
+            BadRequestException {
         String token = authDTO.getToken();
         String username = authDTO.getUsername();
 
-        try {
-            if (token == null || token.isEmpty() || username == null || username.isEmpty()) {
-                return ResponseEntity.badRequest().body(new AuthResponseDTO(false));
-            }
+        if (token == null || token.isEmpty() || username == null || username.isEmpty()) {
+            throw new BadRequestException("Username or token is empty");
+        }
 
-            token = token.substring(7);
-            if (token.isEmpty()) { // no proper token
-                return ResponseEntity.badRequest().body(new AuthResponseDTO(false));
-            }
+        token = token.substring(7);
+        if (token.isEmpty()) { // no proper token
+            throw new BadRequestException("Token does not start with Bearer");
+        }
 
-            String tokenUsername = jwtTokenUtil.getUsernameFromToken(token);
-            if (!username.equals(tokenUsername)) { // username does not match
-                return ResponseEntity.badRequest().body(new AuthResponseDTO(false));
-            }
+        String tokenUsername = jwtTokenUtil.getUsernameFromToken(token);
+        if (!username.equals(tokenUsername)) { // username does not match
+            throw new BadRequestException("Username in token does not match");
+        }
 
-            UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(tokenUsername);
-            Boolean isValid = jwtTokenUtil.validateToken(token, userDetails);
+        UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(tokenUsername);
+        Boolean isValid = jwtTokenUtil.validateToken(token, userDetails);
 
-            if (isValid) {
+        if (isValid) {
 
-                // Checking whether admin or not
-                boolean isAdmin = false;
-                var roles = userDetails.getAuthorities();
-                for (var role : roles) {
-                    if (role.getAuthority().equals("ROLE_ADMIN")) {
-                        isAdmin = true;
-                        break;
-                    }
+            // Checking whether admin or not
+            boolean isAdmin = false;
+            var roles = userDetails.getAuthorities();
+            for (var role : roles) {
+                if (role.getAuthority().equals("ROLE_ADMIN")) {
+                    isAdmin = true;
+                    break;
                 }
-
-                String newToken = String.format("%s %s", tokenPrefix, jwtTokenUtil.generateToken(userDetails));
-                return ResponseEntity.ok().body(new AuthResponseDTO(isAdmin, true, newToken, username));
-            } else {
-                return ResponseEntity.badRequest().body(new AuthResponseDTO(false, false, "Not Valid token", ""));
             }
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new AuthResponseDTO(false));
+
+            String newToken = String.format("%s %s", tokenPrefix, jwtTokenUtil.generateToken(userDetails));
+            return ResponseEntity.ok().body(new AuthResponseDTO(isAdmin, true, newToken, username));
+        } else {
+            throw new BadRequestException("Token is not valid");
         }
     }
 
@@ -98,31 +99,37 @@ public class AuthController {
      * @return {@code AuthResponseDTO AuthResponseDTO} object
      */
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDTO> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) {
+    public ResponseEntity<AuthResponseDTO> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest)
+            throws UserNotFoundException, BadRequestException {
         authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
+
+        Optional<User> optionalUser = userRepository.findByUsernameAndActiveTrue(authenticationRequest.getUsername());
+
+        if (optionalUser.isEmpty()) {
+            throw new UserNotFoundException(authenticationRequest.getUsername());
+        }
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
         final String token = String.format("%s %s", tokenPrefix, jwtTokenUtil.generateToken(userDetails));
 
-        Optional<User> optionalUser = userRepository.findByUsernameAndActiveTrue(authenticationRequest.getUsername());
-        if (optionalUser.isPresent()) {
-            // Checking whether admin or not
-            boolean isAdmin = false;
-            Set<Role> roles = optionalUser.get().getRoles();
-            for (Role role : roles) {
-                if (role.getName().equals("ROLE_ADMIN")) {
-                    isAdmin = true;
-                    break;
-                }
+        // Checking whether admin or not
+        boolean isAdmin = false;
+        Set<Role> roles = optionalUser.get().getRoles();
+        for (Role role : roles) {
+            if (role.getName().equals("ROLE_ADMIN")) {
+                isAdmin = true;
+                break;
             }
-
-            return ResponseEntity.ok().body(new AuthResponseDTO(isAdmin, true, token, optionalUser.get().getUsername()));
-        } else {
-            return ResponseEntity.badRequest().body(new AuthResponseDTO(false));
         }
+
+        return ResponseEntity.ok().body(new AuthResponseDTO(isAdmin, true, token, optionalUser.get().getUsername()));
     }
 
-    private void authenticate(String username, String password) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+    private void authenticate(String username, String password) throws BadRequestException {
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+        } catch (Exception e) {
+            throw new BadRequestException("Authentication error!");
+        }
     }
 }

@@ -39,12 +39,12 @@ public class UserService {
      * @param id ID of user to search
      * @return {@link User User} or throw {@link UserNotFoundException UserNotFoundException}
      */
-    private User findById(long id) {
+    private User findById(long id) throws UserNotFoundException {
         Optional<User> userOptional = userRepository.findByIdAndActiveTrue(id);
         if (userOptional.isPresent()) {
             return userOptional.get();
         } else {
-            throw new UserNotFoundException("User is not found!");
+            throw new UserNotFoundException(id);
         }
     }
 
@@ -61,7 +61,7 @@ public class UserService {
         if (optionalUser.isPresent()) {
             return optionalUser.get();
         } else {
-            throw new UserNotFoundException("User is not found!");
+            throw new UserNotFoundException(username); // GlobalExceptionHandler will handle
         }
     }
 
@@ -69,7 +69,7 @@ public class UserService {
      * @return List of all users
      */
     public List<UserResponseDTO> getAllUsers() {
-        return userRepository.findAllByActiveTrueOrderByUsername();
+        return userRepository.findAllByActiveTrueOrderByUsername(); // If not found return empty
     }
 
     /**
@@ -79,7 +79,7 @@ public class UserService {
      */
     public Page<UserResponseDTO> getAllUsersWithPagination(int pageNumber, int pageSize) {
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
-        return userRepository.findAllByActiveTrueOrderByUsername(pageRequest);
+        return userRepository.findAllByActiveTrueOrderByUsername(pageRequest); // If not found return empty
     }
 
     /**
@@ -96,7 +96,12 @@ public class UserService {
      * @return Page of user.
      */
     public Page<UserResponseDTO> getUserByIdWithPagination(long id, Pageable pageable) {
-        return userRepository.findByIdAndActiveTrue(id, pageable);
+        Page<UserResponseDTO> users = userRepository.findByIdAndActiveTrue(id, pageable);
+        if (users.isEmpty()) {
+            throw new UserNotFoundException(id);
+        } else {
+            return users;
+        }
     }
 
     /**
@@ -104,7 +109,12 @@ public class UserService {
      * @return List of users
      */
     public List<UserResponseDTO> getAllUsersByUsername(String username) {
-        return userRepository.findAllByUsernameContainsIgnoreCaseAndActiveTrueOrderByUsername(username);
+        List<UserResponseDTO> users = userRepository.findAllByUsernameContainsIgnoreCaseAndActiveTrueOrderByUsername(username);
+        if (users.isEmpty()) {
+            throw new UserNotFoundException(username);
+        } else {
+            return users;
+        }
     }
 
     /**
@@ -115,7 +125,12 @@ public class UserService {
      */
     public Page<UserResponseDTO> getAllUsersByUsernameWithPagination(String username, int pageNumber, int pageSize) {
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
-        return userRepository.findAllByUsernameContainsIgnoreCaseAndActiveTrueOrderByUsername(username, pageRequest);
+        Page<UserResponseDTO> users = userRepository.findAllByUsernameContainsIgnoreCaseAndActiveTrueOrderByUsername(username, pageRequest);
+        if (users.isEmpty()) {
+            throw new UserNotFoundException(username);
+        } else {
+            return users;
+        }
     }
 
     /**
@@ -135,7 +150,7 @@ public class UserService {
         if (roleOptional.isPresent()) {
             user.setRoles(Set.of(roleOptional.get()));
         } else {
-            throw new RoleNotFoundException("Role is not found!");
+            throw new RoleNotFoundException(ROLE_USER);
         }
 
         return new UserResponseDTO(userRepository.save(user));
@@ -162,7 +177,7 @@ public class UserService {
      */
     public UserResponseDTO removeUser(long id) {
         User user = this.findById(id);
-        user.setActive(!user.isActive());
+        user.setActive(false);
         return new UserResponseDTO(userRepository.save(user));
     }
 

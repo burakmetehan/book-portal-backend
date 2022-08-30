@@ -8,7 +8,7 @@ import java.util.Set;
 @Entity
 @Table(name = "ROLES")
 public class Role extends EntityBase {
-    @Column(name = "NAME", length = 255, unique = true)
+    @Column(name = "NAME", unique = true)
     private  String name;
 
     @ManyToMany(mappedBy = "roles")

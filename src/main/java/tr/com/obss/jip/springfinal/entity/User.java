@@ -8,10 +8,10 @@ import java.util.Set;
 @Entity
 @Table(name = "USERS")
 public class User extends EntityBase {
-    @Column(name = "USERNAME", length = 255, unique = true)
+    @Column(name = "USERNAME", unique = true)
     private String username;
 
-    @Column(name = "PASSWORD", length = 255)
+    @Column(name = "PASSWORD")
     private String password;
 
     @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)

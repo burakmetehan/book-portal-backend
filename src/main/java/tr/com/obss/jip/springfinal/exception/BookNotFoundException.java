@@ -5,7 +5,11 @@ public class BookNotFoundException extends RuntimeException {
         super("Book is not found!");
     }
 
-    public BookNotFoundException(String message) {
-        super(message);
+    public BookNotFoundException(String bookName) {
+        super(String.format("Book, whose name is %s, is not found!", bookName));
+    }
+
+    public BookNotFoundException(long bookId) {
+        super(String.format("Book, whose id number is %d, is not found!", bookId));
     }
 }

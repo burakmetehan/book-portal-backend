@@ -66,7 +66,7 @@ public class DataLoader implements ApplicationRunner {
                 adminUser.setRoles(Set.of(adminRole.get(), userRole.get()));
                 userRepository.save(adminUser);
             } else {
-                throw new RoleNotFoundException("Roles are not found!");
+                throw new RoleNotFoundException();
             }
         }
     }

@@ -3,7 +3,7 @@ package tr.com.obss.jip.springfinal.service;
 import org.springframework.stereotype.Service;
 import tr.com.obss.jip.springfinal.entity.Book;
 import tr.com.obss.jip.springfinal.entity.User;
-import tr.com.obss.jip.springfinal.exception.addbookerror;
+import tr.com.obss.jip.springfinal.exception.BookListException;
 import tr.com.obss.jip.springfinal.model.UserResponseDTO;
 import tr.com.obss.jip.springfinal.repo.UserRepository;
 
@@ -37,7 +37,7 @@ public class BookListService {
         if (isSuccessful) {
             return new UserResponseDTO(userRepository.save(user));
         } else {
-            throw new addbookerror("Error in adding book!");
+            throw new BookListException(BookListException.ADD_ERROR, BookListException.LIST_TYPE_READ);
         }
     }
 
@@ -57,7 +57,7 @@ public class BookListService {
         if (isSuccessful) {
             return new UserResponseDTO(userRepository.save(user));
         } else {
-            throw new addbookerror("Error in adding book!");
+            throw new BookListException(BookListException.REMOVE_ERROR, BookListException.LIST_TYPE_READ);
         }
     }
 
@@ -77,7 +77,7 @@ public class BookListService {
         if (isSuccessful) {
             return new UserResponseDTO(userRepository.save(user));
         } else {
-            throw new addbookerror("Error in adding book!");
+            throw new BookListException(BookListException.ADD_ERROR, BookListException.LIST_TYPE_FAVORITE);
         }
     }
 
@@ -97,7 +97,7 @@ public class BookListService {
         if (isSuccessful) {
             return new UserResponseDTO(userRepository.save(user));
         } else {
-            throw new addbookerror("Error in adding book!");
+            throw new BookListException(BookListException.REMOVE_ERROR, BookListException.LIST_TYPE_FAVORITE);
         }
     }
 }

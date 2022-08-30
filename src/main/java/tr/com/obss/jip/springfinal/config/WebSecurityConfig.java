@@ -14,7 +14,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import tr.com.obss.jip.springfinal.filter.JwtRequestFilter;
 
-import static javax.servlet.http.HttpServletResponse.*;
+import java.util.List;
+
+import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
 
 @EnableWebSecurity
 @Configuration
@@ -24,6 +26,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final UserDetailsService jwtUserDetailsService;
     private final JwtRequestFilter jwtRequestFilter;
     private final PasswordEncoder passwordEncoder;
+
+    public final static List<String> AUTH_WHITELIST = List.of(
+            "/auth",
+            "/auth/**"
+    );
 
     public WebSecurityConfig(
             AuthEntryPoint authEntryPoint,
