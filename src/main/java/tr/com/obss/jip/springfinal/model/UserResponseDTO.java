@@ -1,7 +1,10 @@
 package tr.com.obss.jip.springfinal.model;
 
+import tr.com.obss.jip.springfinal.entity.Book;
+import tr.com.obss.jip.springfinal.entity.Role;
 import tr.com.obss.jip.springfinal.entity.User;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -39,9 +42,19 @@ public class UserResponseDTO {
         this.id = user.getId();
         this.username = user.getUsername();
 
-        this.roles = user.getRoles().stream().map(RoleResponseDTO::new).collect(Collectors.toSet());
-        this.readList = user.getReadList().stream().map(BookResponseDTO::new).collect(Collectors.toSet());
-        this.favoriteList = user.getFavoriteList().stream().map(BookResponseDTO::new).collect(Collectors.toSet());
+        Set<Role> userRoles = user.getRoles();
+        Set<Book> userReadList = user.getReadList();
+        Set<Book> userFavoriteList = user.getFavoriteList();
+
+        this.roles = userRoles == null ? Collections.emptySet() : userRoles.stream()
+                                                                           .map(RoleResponseDTO::new)
+                                                                           .collect(Collectors.toSet());
+        this.readList = userReadList == null ? Collections.emptySet() : userReadList.stream()
+                                                                                    .map(BookResponseDTO::new)
+                                                                                    .collect(Collectors.toSet());
+        this.favoriteList = userFavoriteList == null ? Collections.emptySet() : userFavoriteList.stream()
+                                                                                                .map(BookResponseDTO::new)
+                                                                                                .collect(Collectors.toSet());
     }
 
     public long getId() {

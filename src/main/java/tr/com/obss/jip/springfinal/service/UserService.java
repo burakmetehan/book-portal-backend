@@ -1,5 +1,6 @@
 package tr.com.obss.jip.springfinal.service;
 
+import org.hibernate.engine.jdbc.spi.SqlExceptionHelper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -7,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import tr.com.obss.jip.springfinal.entity.Role;
 import tr.com.obss.jip.springfinal.entity.User;
+import tr.com.obss.jip.springfinal.exception.ConflictException;
 import tr.com.obss.jip.springfinal.exception.RoleNotFoundException;
 import tr.com.obss.jip.springfinal.exception.UserNotFoundException;
 import tr.com.obss.jip.springfinal.model.UserDTO;
@@ -109,7 +111,8 @@ public class UserService {
      * @return List of users
      */
     public List<UserResponseDTO> getAllUsersByUsername(String username) {
-        List<UserResponseDTO> users = userRepository.findAllByUsernameContainsIgnoreCaseAndActiveTrueOrderByUsername(username);
+        List<UserResponseDTO> users = userRepository.findAllByUsernameContainsIgnoreCaseAndActiveTrueOrderByUsername(
+                username);
         if (users.isEmpty()) {
             throw new UserNotFoundException(username);
         } else {
@@ -125,7 +128,9 @@ public class UserService {
      */
     public Page<UserResponseDTO> getAllUsersByUsernameWithPagination(String username, int pageNumber, int pageSize) {
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
-        Page<UserResponseDTO> users = userRepository.findAllByUsernameContainsIgnoreCaseAndActiveTrueOrderByUsername(username, pageRequest);
+        Page<UserResponseDTO> users = userRepository.findAllByUsernameContainsIgnoreCaseAndActiveTrueOrderByUsername(
+                username,
+                pageRequest);
         if (users.isEmpty()) {
             throw new UserNotFoundException(username);
         } else {
@@ -153,7 +158,11 @@ public class UserService {
             throw new RoleNotFoundException(ROLE_USER);
         }
 
-        return new UserResponseDTO(userRepository.save(user));
+        try {
+            return new UserResponseDTO(userRepository.save(user));
+        } catch (Exception e) {
+            throw new ConflictException("Duplicate or empty user is provided!");
+        }
     }
 
     /**

@@ -62,7 +62,7 @@ public class UserController {
      * @param pageSize   non-negative integer
      * @return The page of the users
      */
-    @GetMapping("/name")
+    @GetMapping("/username")
     public ResponseEntity<Page<UserResponseDTO>> searchUsersByName(
             @RequestParam(name = "username", defaultValue = "") String username,
             @RequestParam(name = "pageNumber", defaultValue = "0", required = false) int pageNumber,

@@ -42,7 +42,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleException(HttpServletRequest request, Exception exception) {
-        return new ResponseEntity<>(createExceptionMap(request, exception, HttpStatus.INTERNAL_SERVER_ERROR),
+        return new ResponseEntity<>(createExceptionMap(request, new Exception("No available message!"), HttpStatus.INTERNAL_SERVER_ERROR),
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
