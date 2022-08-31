@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>tr.com.obss.jip</groupId>
-    <artifactId>JIP-SpringFinalProject</artifactId>
+    <artifactId>JIP-BookPortal</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>JIP-SpringFinalProject</name>
-    <description>JIP-SpringFinalProject</description>
+    <name>JIP-BookPortal</name>
+    <description>JIP-BookPortal</description>
     <properties>
         <java.version>17</java.version>
     </properties>
