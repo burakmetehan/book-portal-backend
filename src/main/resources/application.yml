@@ -7,9 +7,9 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
   datasource:
-    username: root
-    password: 6383
-    url: jdbc:mysql://localhost:3306/spring_final_project
+    username: 
+    password: 
+    url: 
   jpa:
     hibernate:
       ddl-auto: update
